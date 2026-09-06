@@ -24,6 +24,8 @@ import {
 } from "lucide-react";
 
 export type RailTarget =
+  | "canon"
+  | "mdninja"
   | "projectmd"
   | "audits"
   | "changelog"
@@ -46,6 +48,7 @@ interface IconRailProps {
   onToggleTheme: () => void;
   onOpenSettings: (tab?: "config" | "github" | "diagrams" | "themes") => void;
   rootName?: string;
+  canonName?: string;
 }
 
 interface RailItemDef {
@@ -53,18 +56,6 @@ interface RailItemDef {
   label: string;
   icon: React.ReactNode;
 }
-
-const PROJECTMD_ITEMS: RailItemDef[] = [
-  { key: "projectmd", label: "projectmd/", icon: <Folder size={15} /> },
-  { key: "audits", label: "audits", icon: <ShieldCheck size={15} /> },
-  { key: "changelog", label: "changelog", icon: <History size={15} /> },
-  { key: "decisions", label: "decisions", icon: <GitFork size={15} /> },
-  { key: "diagrams", label: "diagrams", icon: <Network size={15} /> },
-  { key: "notes", label: "notes", icon: <StickyNote size={15} /> },
-  { key: "research", label: "research", icon: <Compass size={15} /> },
-  { key: "roadmaps", label: "roadmaps", icon: <Milestone size={15} /> },
-  { key: "standards", label: "standards", icon: <CheckSquare size={15} /> },
-];
 
 export const IconRail: React.FC<IconRailProps> = ({
   isSidebarOpen,
@@ -75,15 +66,28 @@ export const IconRail: React.FC<IconRailProps> = ({
   onToggleTheme,
   onOpenSettings,
   rootName,
+  canonName = "mdninja",
 }) => {
   const [isLogoHovered, setIsLogoHovered] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const profileRef = useRef<HTMLDivElement>(null);
 
+  const canonItems: RailItemDef[] = [
+    { key: "canon", label: `${canonName}/`, icon: <Folder size={15} /> },
+    { key: "audits", label: "audits", icon: <ShieldCheck size={15} /> },
+    { key: "changelog", label: "changelog", icon: <History size={15} /> },
+    { key: "decisions", label: "decisions", icon: <GitFork size={15} /> },
+    { key: "diagrams", label: "diagrams", icon: <Network size={15} /> },
+    { key: "notes", label: "notes", icon: <StickyNote size={15} /> },
+    { key: "research", label: "research", icon: <Compass size={15} /> },
+    { key: "roadmaps", label: "roadmaps", icon: <Milestone size={15} /> },
+    { key: "standards", label: "standards", icon: <CheckSquare size={15} /> },
+  ];
+
   const otherItems: RailItemDef[] = [
     { key: "docs", label: "docs/", icon: <BookOpen size={15} /> },
     { key: "agents", label: ".agents/", icon: <Bot size={15} /> },
-    { key: "root", label: rootName || "projectmd", icon: <FileCode size={15} /> },
+    { key: "root", label: rootName || "mdninja", icon: <FileCode size={15} /> },
   ];
 
   // Close profile popover on click outside
@@ -136,7 +140,7 @@ export const IconRail: React.FC<IconRailProps> = ({
 
       {/* Directory Navigation Icons: starts right under header naturally */}
       <div className="rail-group rail-nav">
-        {PROJECTMD_ITEMS.map((item) => (
+        {canonItems.map((item) => (
           <button
             key={item.key}
             type="button"

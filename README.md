@@ -20,7 +20,7 @@ Explore the public live demo: **[mdninja.navinhill.com](https://mdninja.navinhil
 * **LaTeX Formula Typography:** Synchronous, zero-layout-shift mathematical rendering via KaTeX (`$math$` and `$$math$$`).
 * **Unconstrained Vector Diagrams:** Interactive Mermaid.js code blocks converted into 60fps pan/zoom vectors with flip-to-edit toggle. Standalone diagrams expand to 100% of panel height.
 * **Direct Local Filesystem I/O:** Edits write directly to disk (`fs.writeFile`) with zero lag. Your Git repository remains the single source of truth.
-* **Native Living Canon Discovery:** Automatically scans and organizes `projectmd/` (ADRs, roadmaps, diagrams, audits), `docs/`, `.agents/`, and root Markdown files.
+* **Native Living Canon Discovery:** Automatically scans and organizes `mdninja/` (ADRs, roadmaps, diagrams, audits), `docs/`, `.agents/`, and root Markdown files.
 * **Zero-Leak Multi-User Isolation:** Ephemeral OAuth token exchange with strict browser-local `localStorage` persistence. Zero tokens or user repositories are ever stored on the server.
 * **Universal Themes:** Curated themes (Default, Tokyo Night, Nord Frost, GitHub Dimmed, Paper Sepia) that adapt seamlessly across both Dark and Light modes.
 
@@ -32,8 +32,8 @@ Explore the public live demo: **[mdninja.navinhill.com](https://mdninja.navinhil
 
 ```bash
 # Clone the repository
-git clone https://github.com/jamesnavinhill/projectmd.git
-cd projectmd
+git clone https://github.com/jamesnavinhill/mdninja.git
+cd mdninja
 
 # Install dependencies
 npm install
@@ -60,10 +60,10 @@ Visit `http://localhost:3000` in your browser.
 
 ```
 [Repository Root]
-├── .projectmd/                     <-- [Hidden] Tool Configuration & Mappings
+├── .mdninja/                      <-- [Hidden] Tool Configuration & Mappings
 │   └── config.json                 <-- Included paths, layout preferences, pinned files
 │
-├── projectmd/                      <-- [Visible] The Living Canon ("The Goods")
+├── mdninja/                       <-- [Visible] The Living Canon ("The Goods")
 │   ├── audits/                     <-- Performance benchmarks & security audits
 │   ├── changelog/                  <-- Version history & release notes
 │   ├── decisions/                  <-- Architecture Decision Records (ADRs) with agent enforcement
@@ -99,7 +99,7 @@ When deployed as a public demo or shared instance, `mdNinja` guarantees that no 
 2. The payload is transferred via `window.opener.postMessage` directly into that visitor's private browser `localStorage`.
 3. Zero tokens or private repositories are stored in server memory, cache, or database.
 
-See [ADR 0004](projectmd/decisions/0004-zero-leak-multi-user-isolation.md) for full architectural details.
+See [ADR 0004](mdninja/decisions/0004-zero-leak-multi-user-isolation.md) for full architectural details.
 
 ---
 

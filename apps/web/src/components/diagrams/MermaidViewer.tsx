@@ -22,9 +22,30 @@ export const MermaidViewer: React.FC<MermaidViewerProps> = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const uniqueId = useRef(`mermaid-${Math.random().toString(36).substring(2, 9)}`);
 
+  const [themeMode, setThemeMode] = useState<string>("dark");
+
   useEffect(() => {
     setRawText(code);
   }, [code]);
+
+  // Track global theme changes (dark vs light)
+  useEffect(() => {
+    if (typeof document === "undefined") return;
+    const currentTheme = document.documentElement.getAttribute("data-theme") || "dark";
+    setThemeMode(currentTheme);
+
+    const observer = new MutationObserver(() => {
+      const updatedTheme = document.documentElement.getAttribute("data-theme") || "dark";
+      setThemeMode(updatedTheme);
+    });
+
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["data-theme", "data-palette"],
+    });
+
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     let isMounted = true;
@@ -34,19 +55,30 @@ export const MermaidViewer: React.FC<MermaidViewerProps> = ({
         setError(null);
         // Dynamically import mermaid in browser only
         const mermaid = (await import("mermaid")).default;
+        const isLight = themeMode === "light";
 
         mermaid.initialize({
           startOnLoad: false,
-          theme: "dark",
-          themeVariables: {
-            darkMode: true,
-            background: "#090a0f",
-            primaryColor: "#6366f1",
-            primaryTextColor: "#f0f3fa",
-            lineColor: "#4f587d",
-            secondaryColor: "#10121a",
-            tertiaryColor: "#181b26",
-          },
+          theme: isLight ? "default" : "dark",
+          themeVariables: isLight
+            ? {
+                darkMode: false,
+                background: "#ffffff",
+                primaryColor: "#4f46e5",
+                primaryTextColor: "#0f172a",
+                lineColor: "#94a3b8",
+                secondaryColor: "#f8fafc",
+                tertiaryColor: "#f1f5f9",
+              }
+            : {
+                darkMode: true,
+                background: "#090a0f",
+                primaryColor: "#6366f1",
+                primaryTextColor: "#f0f3fa",
+                lineColor: "#4f587d",
+                secondaryColor: "#10121a",
+                tertiaryColor: "#181b26",
+              },
           securityLevel: "loose",
           fontFamily: "var(--font-sans)",
         });
@@ -71,7 +103,7 @@ export const MermaidViewer: React.FC<MermaidViewerProps> = ({
     return () => {
       isMounted = false;
     };
-  }, [rawText]);
+  }, [rawText, themeMode]);
 
   const handleRawChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const nextVal = e.target.value;

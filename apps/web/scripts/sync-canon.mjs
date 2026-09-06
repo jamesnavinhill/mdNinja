@@ -10,7 +10,15 @@ async function findRoot() {
   for (let i = 0; i < 5; i++) {
     try {
       const entries = await fs.readdir(cur);
-      if (entries.includes("projectmd") || entries.includes(".projectmd")) {
+      if (
+        entries.includes(".mdninja") ||
+        entries.includes("mdninja") ||
+        entries.includes(".projectmd") ||
+        entries.includes("projectmd")
+      ) {
+        return cur;
+      }
+      if (entries.includes("package.json") && entries.includes("apps") && entries.includes("packages")) {
         return cur;
       }
     } catch {
@@ -88,11 +96,44 @@ async function collectAllFiles(items, baseDir, contentMap) {
   }
 }
 
+async function loadConfig(root) {
+  const configLocations = [
+    path.join(root, ".mdninja", "config.json"),
+    path.join(root, ".projectmd", "config.json"),
+  ];
+  for (const loc of configLocations) {
+    try {
+      const data = await fs.readFile(loc, "utf8");
+      return JSON.parse(data);
+    } catch {
+      //
+    }
+  }
+  return null;
+}
+
 async function main() {
   const root = await findRoot();
   console.log(`[sync-canon] Scanning repository at: ${root}`);
 
-  const projectmd = await scanDirectory(root, "projectmd");
+  const config = await loadConfig(root);
+  const configuredCanon = config?.canon ? config.canon.replace(/^\.\//, "") : null;
+
+  // Determine canon directory name (check config -> mdninja -> projectmd)
+  let canonDirName = "mdninja";
+  if (configuredCanon) {
+    canonDirName = configuredCanon;
+  } else {
+    try {
+      const entries = await fs.readdir(root);
+      if (entries.includes("mdninja")) canonDirName = "mdninja";
+      else if (entries.includes("projectmd")) canonDirName = "projectmd";
+    } catch {
+      //
+    }
+  }
+
+  const canon = await scanDirectory(root, canonDirName);
   let docs = await scanDirectory(root, "docs");
   if (docs.length === 0) docs = await scanDirectory(root, "doc");
   const agents = await scanDirectory(root, ".agents");
@@ -116,16 +157,20 @@ async function main() {
     //
   }
 
+  const rootName = config?.name || path.basename(root);
+
   const scanResult = {
-    rootName: "projectmd",
-    projectmd,
+    rootName,
+    canonName: canonDirName,
+    canon,
+    projectmd: canon, // Backwards-compatible alias
     docs,
     agents,
     rootFiles,
   };
 
   const contents = {};
-  await collectAllFiles(projectmd, root, contents);
+  await collectAllFiles(canon, root, contents);
   await collectAllFiles(docs, root, contents);
   await collectAllFiles(agents, root, contents);
   await collectAllFiles(rootFiles, root, contents);

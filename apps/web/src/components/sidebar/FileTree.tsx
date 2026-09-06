@@ -24,11 +24,13 @@ export const FileTree: React.FC<FileTreeProps> = ({
   useEffect(() => {
     if (!targetToFocus) return;
 
+    const canonKey = scanData?.canonName || "mdninja";
+
     // Expand parent section and target folder
     setCollapsedSections((prev) => {
       const next = { ...prev };
-      if (targetToFocus === "projectmd") {
-        next["projectmd"] = false;
+      if (targetToFocus === "canon" || targetToFocus === "mdninja" || targetToFocus === "projectmd") {
+        next[canonKey] = false;
       } else if (targetToFocus === "docs") {
         next["docs"] = false;
       } else if (targetToFocus === "agents") {
@@ -36,9 +38,9 @@ export const FileTree: React.FC<FileTreeProps> = ({
       } else if (targetToFocus === "root") {
         next["root"] = false;
       } else {
-        // e.g. "decisions" or "roadmaps" inside projectmd
-        next["projectmd"] = false;
-        next[`projectmd/${targetToFocus}`] = false;
+        // e.g. "decisions" or "roadmaps" inside canon
+        next[canonKey] = false;
+        next[`${canonKey}/${targetToFocus}`] = false;
       }
       return next;
     });
@@ -47,7 +49,7 @@ export const FileTree: React.FC<FileTreeProps> = ({
     if (el) {
       el.scrollIntoView({ behavior: "smooth", block: "nearest" });
     }
-  }, [targetToFocus]);
+  }, [targetToFocus, scanData]);
 
   const toggleSection = (sectionKey: string) => {
     setCollapsedSections((prev) => ({ ...prev, [sectionKey]: !prev[sectionKey] }));
@@ -61,7 +63,9 @@ export const FileTree: React.FC<FileTreeProps> = ({
     );
   }
 
-  const { projectmd, docs, agents, rootFiles } = scanData;
+  const canonKey = scanData.canonName || "mdninja";
+  const canonList = scanData.canon || scanData.projectmd || [];
+  const { docs, agents, rootFiles } = scanData;
 
   const matchesSearch = (item: FileItem): boolean => {
     if (!searchQuery) return true;
@@ -127,18 +131,18 @@ export const FileTree: React.FC<FileTreeProps> = ({
       </div>
 
       <div className="file-tree-container">
-        {/* projectmd/ */}
-        {projectmd.length > 0 && (
-          <div className="tree-section" id="nav-projectmd">
+        {/* Living Canon (mdninja/ or custom) */}
+        {canonList.length > 0 && (
+          <div className="tree-section" id={`nav-${canonKey}`}>
             <div
               className="tree-section-title"
-              onClick={() => toggleSection("projectmd")}
+              onClick={() => toggleSection(canonKey)}
             >
-              {collapsedSections["projectmd"] ? <ChevronRight size={12} /> : <ChevronDown size={12} />}
-              <span>projectmd</span>
+              {collapsedSections[canonKey] ? <ChevronRight size={12} /> : <ChevronDown size={12} />}
+              <span>{canonKey}</span>
             </div>
-            {!collapsedSections["projectmd"] &&
-              projectmd.map((item) => renderItem(item, 0))}
+            {!collapsedSections[canonKey] &&
+              canonList.map((item) => renderItem(item, 0))}
           </div>
         )}
 
@@ -180,7 +184,7 @@ export const FileTree: React.FC<FileTreeProps> = ({
               onClick={() => toggleSection("root")}
             >
               {collapsedSections["root"] ? <ChevronRight size={12} /> : <ChevronDown size={12} />}
-              <span>{scanData.rootName || "projectmd"}</span>
+              <span>{scanData.rootName || "mdninja"}</span>
             </div>
             {!collapsedSections["root"] &&
               rootFiles.map((item) => renderItem(item, 0))}

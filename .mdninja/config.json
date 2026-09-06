@@ -1,9 +1,9 @@
 {
-  "$schema": "https://projectmd.dev/schema.json",
-  "name": "projectmd",
-  "canon": "./projectmd",
+  "$schema": "https://mdninja.navinhill.com/schema.json",
+  "name": "mdninja",
+  "canon": "./mdninja",
   "include": [
-    "projectmd/**/*.md",
+    "mdninja/**/*.md",
     "docs/**/*.md",
     ".agents/**/*.md",
     "*.md"
@@ -16,8 +16,8 @@
   "preferences": {
     "defaultLayout": "single",
     "pinned": [
-      "projectmd/roadmaps/roadmap.md",
-      "projectmd/diagrams/architecture.md",
+      "mdninja/roadmaps/roadmap.md",
+      "mdninja/diagrams/architecture.md",
       "projectmd_outline.md"
     ]
   }

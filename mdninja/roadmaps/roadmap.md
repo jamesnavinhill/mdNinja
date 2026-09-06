@@ -1,10 +1,10 @@
-# projectmd Living Roadmap
+# mdNinja Living Roadmap
 
 ## 📊 Visual Execution Timeline
 
 ```mermaid
 gantt
-    title projectmd Delivery Timeline
+    title mdNinja Delivery Timeline
     dateFormat  YYYY-MM-DD
     section Phase 1: Core Shell
     Monorepo & Workspaces Setup      :done,    m1, 2026-09-01, 2d
@@ -17,9 +17,10 @@ gantt
     section Phase 3: Hub & Polish
     Universal Theme Engine           :done,    m7, 2026-09-05, 1d
     Multi-Repo GitHub OAuth          :done,    m8, 2026-09-06, 2d
-    CLI Launcher (@projectmd/cli)    :active,  m9, 2026-09-06, 2d
+    Rebrand & Dynamic Canon Discovery:done,    m9, 2026-09-06, 1d
+    CLI Launcher (@mdninja/cli)      :active,  m10, 2026-09-06, 2d
     section Phase 4: Self-Host & Distribution
-    Docker One-Click Container       :m11, after m9, 3d
+    Docker One-Click Container       :m11, after m10, 3d
     Billing & Pro Team Workspaces    :m12, after m11, 5d
 ```
 
@@ -27,19 +28,20 @@ gantt
 
 ### Phase 1: Core Shell & Architecture
 - [x] Establish monorepo structure with `apps/web` and `packages/cli`.
-- [x] Configure `.projectmd/config.json` schema and living canon directories.
+- [x] Configure `.mdninja/config.json` schema and living canon directories.
 - [x] Build dual equal-panel layout with `react-resizable-panels`.
 - [x] Implement collapsible icon rail and natural file tree scanner.
 
 ### Phase 2: Rendering & Block Editing
 - [x] Implement Markdown AST pipeline with `remark-gfm`, `remark-math`, and `rehype-katex`.
-- [x] Integrate Mermaid.js with `react-zoom-pan-pinch` and flip-to-edit toggle.
-- [x] Build inline block editor and local disk write API (`/api/content`).
+- [x] Integrate Mermaid.js with `react-zoom-pan-pinch`, dynamic light/dark reactivity, and flip-to-edit toggle.
+- [x] Build inline block editor, relative link interception, and local disk write API (`/api/content`).
 
 ### Phase 3: Distribution & Multi-Repo
 - [x] Universal dark & light themes (Default, Tokyo Night, Nord Frost, GitHub Dimmed, Paper Sepia).
 - [x] Multi-Repo GitHub OAuth integration and client-isolated account manager.
-- [ ] Complete standalone `@projectmd/cli` executable runner (`npx mdninja`).
+- [x] Rebrand to lowercase `mdninja` identifier with dynamic canon discovery and ADR 0006.
+- [x] Complete standalone `@mdninja/cli` executable runner (`npx mdninja`).
 
 ### Phase 4: Public Deployment & Self-Hosting
 - [x] Public live deployment on `https://mdninja.navinhill.com` via Vercel with `@vercel/analytics`.

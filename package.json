@@ -1,5 +1,5 @@
 {
-  "name": "projectmd-monorepo",
+  "name": "mdninja-monorepo",
   "version": "1.0.0",
   "private": true,
   "workspaces": [
@@ -7,11 +7,11 @@
     "packages/*"
   ],
   "scripts": {
-    "dev": "npm run dev --workspace=@projectmd/web",
-    "build": "npm run build --workspace=@projectmd/web",
-    "sync-canon": "npm run sync-canon --workspace=@projectmd/web",
-    "start": "npm run start --workspace=@projectmd/web",
-    "lint": "npm run lint --workspace=@projectmd/web"
+    "dev": "npm run dev --workspace=@mdninja/web",
+    "build": "npm run build --workspace=@mdninja/web",
+    "sync-canon": "npm run sync-canon --workspace=@mdninja/web",
+    "start": "npm run start --workspace=@mdninja/web",
+    "lint": "npm run lint --workspace=@mdninja/web"
   },
   "overrides": {
     "next": {

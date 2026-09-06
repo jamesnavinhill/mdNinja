@@ -1,14 +1,15 @@
 {
-  "name": "@projectmd/cli",
+  "name": "@mdninja/cli",
   "version": "1.0.0",
-  "description": "CLI launcher for projectmd - the zero-constraint living canon viewer",
+  "description": "CLI launcher for mdNinja - the zero-constraint visual living canon workbench",
   "bin": {
+    "mdninja": "./bin/mdninja.js",
     "projectmd": "./bin/projectmd.js"
   },
   "scripts": {
     "build": "echo 'CLI ready'"
   },
-  "keywords": ["markdown", "living-canon", "agents", "adr", "roadmap", "diagrams"],
+  "keywords": ["markdown", "living-canon", "agents", "adr", "roadmap", "diagrams", "mdninja"],
   "author": "",
   "license": "MIT"
 }

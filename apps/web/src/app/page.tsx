@@ -19,7 +19,20 @@ export default function WorkspacePage() {
   const [targetToFocus, setTargetToFocus] = useState<string | null>(null);
 
   // Dual Panel State
-  const [panel1File, setPanel1File] = useState<string | null>("projectmd/roadmaps/roadmap.md");
+  const [panel1File, setPanel1File] = useState<string | null>(() => {
+    const defaultData = canonData.scanResult as RepoScanResult;
+    const canonName = defaultData?.canonName || "mdninja";
+    const preferred = `${canonName}/roadmaps/roadmap.md`;
+    if (canonData.contents && (canonData.contents as Record<string, string>)[preferred]) {
+      return preferred;
+    }
+    return (
+      getFirstDocInDirectory("roadmaps", defaultData) ||
+      getFirstDocInDirectory("canon", defaultData) ||
+      Object.keys(canonData.contents || {})[0] ||
+      null
+    );
+  });
   const [panel2File, setPanel2File] = useState<string | null>(null);
   const [activePanel, setActivePanel] = useState<"panel1" | "panel2">("panel1");
   const [isSplitOpen, setIsSplitOpen] = useState(false);
@@ -91,13 +104,24 @@ export default function WorkspacePage() {
   };
 
   // User selects a file: ALWAYS load in panel1 when split is closed!
-  const handleSelectFile = (filePath: string) => {
+  const handleSelectFile = useCallback((filePath: string) => {
     if (!isSplitOpen || activePanel === "panel1") {
       setPanel1File(filePath);
     } else {
       setPanel2File(filePath);
     }
-  };
+  }, [isSplitOpen, activePanel]);
+
+  // Listen for internal markdown link clicks from MarkdownRenderer
+  useEffect(() => {
+    const handleOpenFile = (e: CustomEvent<{ path: string }>) => {
+      if (e.detail?.path) {
+        handleSelectFile(e.detail.path);
+      }
+    };
+    window.addEventListener("mdninja:open-file" as any, handleOpenFile as any);
+    return () => window.removeEventListener("mdninja:open-file" as any, handleOpenFile as any);
+  }, [handleSelectFile]);
 
   // Sidebar icon rail click: dynamic navigation to top doc in target directory
   const handleSelectTarget = (target: RailTarget) => {
@@ -134,6 +158,7 @@ export default function WorkspacePage() {
         onToggleTheme={toggleTheme}
         onOpenSettings={handleOpenSettings}
         rootName={scanData?.rootName}
+        canonName={scanData?.canonName}
       />
 
       {/* Collapsible Sidebar */}
@@ -141,7 +166,7 @@ export default function WorkspacePage() {
         {/* Header matches 38px height with Project / Repo Picker */}
         <div className="sidebar-header">
           <ProjectPicker
-            currentProject={scanData?.rootName || "projectmd"}
+            currentProject={scanData?.rootName || "mdninja"}
             onOpenGithubSettings={() => handleOpenSettings("github")}
           />
         </div>

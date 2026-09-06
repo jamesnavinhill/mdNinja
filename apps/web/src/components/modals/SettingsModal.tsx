@@ -76,7 +76,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     { username: "james", name: "James Hill", avatar: "JH", connected: true },
   ]);
   const [repos, setRepos] = useState([
-    { name: "projectmd", active: true, branch: "main" },
+    { name: "mdninja", active: true, branch: "main" },
     { name: "mdninja-web", active: true, branch: "main" },
     { name: "agent-skills-canon", active: false, branch: "dev" },
   ]);
@@ -329,7 +329,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   mdNinja Configuration
                 </h3>
                 <p style={{ fontSize: "12.5px", color: "var(--text-secondary)", marginTop: "4px" }}>
-                  Project-level settings stored in <code>.projectmd/config.json</code>
+                  Project-level settings stored in <code>.mdninja/config.json</code>
                 </p>
               </div>
 
@@ -340,7 +340,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   </label>
                   <input
                     type="text"
-                    defaultValue="./projectmd"
+                    defaultValue="./mdninja"
                     className="search-input"
                     style={{ marginTop: "6px", width: "100%", padding: "8px 12px" }}
                   />

@@ -6,14 +6,22 @@ import canonData from "./canon-data.json";
 export * from "./types";
 
 /**
- * Finds the project root by walking upwards looking for .projectmd or projectmd
+ * Finds the project root by walking upwards looking for .mdninja, mdninja, .projectmd, or projectmd
  */
 export async function getProjectRoot(): Promise<string> {
   let current = process.cwd();
   for (let i = 0; i < 5; i++) {
     try {
       const entries = await fs.readdir(current);
-      if (entries.includes(".projectmd") || entries.includes("projectmd")) {
+      if (
+        entries.includes(".mdninja") ||
+        entries.includes("mdninja") ||
+        entries.includes(".projectmd") ||
+        entries.includes("projectmd")
+      ) {
+        return current;
+      }
+      if (entries.includes("package.json") && entries.includes("apps") && entries.includes("packages")) {
         return current;
       }
       const parent = path.dirname(current);
@@ -24,6 +32,25 @@ export async function getProjectRoot(): Promise<string> {
     }
   }
   return process.cwd();
+}
+
+/**
+ * Loads project configuration from .mdninja/config.json or .projectmd/config.json
+ */
+export async function getProjectConfig(root: string): Promise<{ canon?: string; name?: string; preferences?: { pinned?: string[] } } | null> {
+  const configLocations = [
+    path.join(root, ".mdninja", "config.json"),
+    path.join(root, ".projectmd", "config.json"),
+  ];
+  for (const loc of configLocations) {
+    try {
+      const data = await fs.readFile(loc, "utf8");
+      return JSON.parse(data);
+    } catch {
+      //
+    }
+  }
+  return null;
 }
 
 /**
@@ -80,10 +107,25 @@ async function scanDir(baseDir: string, subDir: string): Promise<FileItem[]> {
 
 export async function scanRepository(): Promise<RepoScanResult> {
   const root = await getProjectRoot();
-  const rootName = path.basename(root);
+  const config = await getProjectConfig(root);
+  const rootName = config?.name || path.basename(root);
 
-  // 1. projectmd/
-  const projectmd = await scanDir(root, "projectmd");
+  // Determine canon directory (check config -> mdninja -> projectmd)
+  let canonDirName = "mdninja";
+  if (config?.canon) {
+    canonDirName = config.canon.replace(/^\.\//, "");
+  } else {
+    try {
+      const entries = await fs.readdir(root);
+      if (entries.includes("mdninja")) canonDirName = "mdninja";
+      else if (entries.includes("projectmd")) canonDirName = "projectmd";
+    } catch {
+      //
+    }
+  }
+
+  // 1. Living Canon (mdninja/ or custom canon)
+  const canon = await scanDir(root, canonDirName);
 
   // 2. docs/
   let docs = await scanDir(root, "docs");
@@ -119,10 +161,12 @@ export async function scanRepository(): Promise<RepoScanResult> {
   }
 
   // If disk has files, use live filesystem
-  if (projectmd.length > 0 || docs.length > 0 || rootFiles.length > 0) {
+  if (canon.length > 0 || docs.length > 0 || rootFiles.length > 0) {
     return {
       rootName,
-      projectmd,
+      canonName: canonDirName,
+      canon,
+      projectmd: canon, // Backwards-compatible alias
       docs,
       agents,
       rootFiles,

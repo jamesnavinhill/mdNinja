@@ -132,9 +132,32 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
     );
   }
 
+  const handleContainerClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    const target = (e.target as HTMLElement).closest("a");
+    if (!target) return;
+    const href = target.getAttribute("href");
+    if (!href) return;
+
+    // Intercept internal markdown and relative links
+    if (
+      !href.startsWith("http://") &&
+      !href.startsWith("https://") &&
+      !href.startsWith("mailto:") &&
+      !href.startsWith("#")
+    ) {
+      e.preventDefault();
+      let cleaned = href.replace(/^\.\//, "");
+      if (cleaned.startsWith("projectmd/")) {
+        cleaned = cleaned.replace(/^projectmd\//, "mdninja/");
+      }
+      window.dispatchEvent(new CustomEvent("mdninja:open-file", { detail: { path: cleaned } }));
+    }
+  };
+
   return (
     <div
       className="markdown-body"
+      onClick={handleContainerClick}
       onDoubleClick={onBlockClick}
       style={{ display: "flex", flexDirection: "column", minHeight: "100%" }}
     >
