@@ -1,9 +1,20 @@
-# mdNinja Agent Operational Directives
+# Project Agents Operational Directive
 
-Guidelines for AI Coding Assistants working on the `mdNinja` codebase.
+This document defines operational rules, personas, and behavioral constraints for all AI coding assistants (Cursor, Claude Code, Windsurf, Roo Code, Gemini) working in this repository.
 
-## Core Directives
-1. **Living Canon:** Operational context, ADRs, and roadmaps must be versioned under `projectmd/`.
-2. **Zero-Constraint Philosophy:** Never add arbitrary constraints, primary/subordinate panel hierarchies, or hardcoded file routing.
-3. **No Wasted UI Space:** Maintain full-height vertical canvas, edge-to-edge diagrams, and zero scrollbars.
-4. **Clean Typography:** Use exact directory names for UI labels. Avoid buzzwords and parenthetical text.
+## 1. The Living Canon Mandate
+* All architectural choices must be formalized in `projectmd/decisions/` using the standard ADR format (`0000-template.md`).
+* When planning multi-step features, read `projectmd/roadmaps/roadmap.md` first to align with current phase priorities.
+* Do not introduce external database dependencies for documentation; all persistent operational context must reside as Markdown in `projectmd/`.
+
+## 2. Directory Layout
+* `projectmd/decisions/`: Immutable decision records.
+* `projectmd/roadmaps/`: Living execution timeline and checklists.
+* `projectmd/diagrams/`: Mermaid and Excalidraw visual maps.
+* `docs/`: User-facing and API documentation.
+* `.agents/skills/`: Executable workflow instructions.
+
+## 3. Agent Rules of Engagement
+* **DO:** Check off completed tasks in `projectmd/roadmaps/roadmap.md` with `[x]` after verifying implementation.
+* **DO:** Include the `🤖 Agent Enforcement` section in every new ADR.
+* **DO NOT:** Commit `.next/` or build artifacts to Git.
