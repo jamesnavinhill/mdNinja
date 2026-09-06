@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   X,
   Settings,
@@ -69,8 +69,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 }) => {
   const [activeTab, setActiveTab] = useState<SettingsTab>(initialTab);
 
-  // GitHub account mock data & state
-  const [githubAccounts, setGithubAccounts] = useState([
+  // Client-isolated GitHub account state (never shared across users)
+  const [githubAccounts, setGithubAccounts] = useState<
+    { username: string; name: string; avatar: string; connected: boolean }[]
+  >([
     { username: "james", name: "James Hill", avatar: "JH", connected: true },
   ]);
   const [repos, setRepos] = useState([
@@ -78,6 +80,94 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     { name: "mdninja-web", active: true, branch: "main" },
     { name: "agent-skills-canon", active: false, branch: "dev" },
   ]);
+
+  // Load client-isolated accounts and repos from localStorage
+  useEffect(() => {
+    try {
+      const savedAccounts = localStorage.getItem("mdninja_gh_accounts");
+      if (savedAccounts) {
+        setGithubAccounts(JSON.parse(savedAccounts));
+      }
+      const savedRepos = localStorage.getItem("mdninja_repos");
+      if (savedRepos) {
+        setRepos(JSON.parse(savedRepos));
+      }
+    } catch {
+      //
+    }
+  }, []);
+
+  // Listen for OAuth completion message from popup window
+  useEffect(() => {
+    const handleAuthMessage = async (event: MessageEvent) => {
+      if (event.data?.type === "GH_AUTH_SUCCESS" && event.data.account) {
+        const { username, name, avatar, token } = event.data.account;
+
+        setGithubAccounts((prev) => {
+          const filtered = prev.filter((a) => a.username !== username);
+          const next = [
+            ...filtered,
+            {
+              username,
+              name: name || username,
+              avatar: avatar || username.slice(0, 2).toUpperCase(),
+              connected: true,
+            },
+          ];
+          localStorage.setItem("mdninja_gh_accounts", JSON.stringify(next));
+          return next;
+        });
+
+        // Dynamically fetch user repositories using their access token
+        if (token) {
+          try {
+            const res = await fetch("https://api.github.com/user/repos?per_page=100&sort=updated", {
+              headers: {
+                Authorization: `Bearer ${token}`,
+                Accept: "application/vnd.github.v3+json",
+              },
+            });
+            if (res.ok) {
+              const fetched = await res.json();
+              if (Array.isArray(fetched)) {
+                setRepos((prev) => {
+                  const newItems = fetched.map((r: any) => ({
+                    name: r.name,
+                    active: true,
+                    branch: r.default_branch || "main",
+                  }));
+                  const existingNames = new Set(prev.map((p) => p.name));
+                  const merged = [
+                    ...prev,
+                    ...newItems.filter((n: any) => !existingNames.has(n.name)),
+                  ];
+                  localStorage.setItem("mdninja_repos", JSON.stringify(merged));
+                  return merged;
+                });
+              }
+            }
+          } catch (err) {
+            console.error("Failed to fetch GitHub repos", err);
+          }
+        }
+      }
+    };
+
+    window.addEventListener("message", handleAuthMessage);
+    return () => window.removeEventListener("message", handleAuthMessage);
+  }, []);
+
+  const handleConnectGitHub = () => {
+    const width = 600;
+    const height = 700;
+    const left = window.screen.width / 2 - width / 2;
+    const top = window.screen.height / 2 - height / 2;
+    window.open(
+      "/api/auth/github",
+      "gh_oauth_popup",
+      `width=${width},height=${height},top=${top},left=${left},status=no,toolbar=no,menubar=no`
+    );
+  };
 
   if (!isOpen) return null;
 
@@ -299,47 +389,62 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   </p>
                 </div>
 
-                {/* Add GitHub account box */}
-                <div
-                  style={{
-                    padding: "14px",
-                    border: "1px solid var(--border-subtle)",
-                    borderRadius: "var(--radius-md)",
-                    backgroundColor: "var(--bg-tertiary)",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                  }}
-                >
-                  <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                {/* Add / Manage GitHub Accounts */}
+                <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                  {githubAccounts.map((acc) => (
                     <div
+                      key={acc.username}
                       style={{
-                        width: "32px",
-                        height: "32px",
-                        borderRadius: "50%",
-                        backgroundColor: "var(--accent-subtle)",
-                        color: "var(--accent)",
+                        padding: "10px 14px",
+                        border: "1px solid var(--border-subtle)",
+                        borderRadius: "var(--radius-md)",
+                        backgroundColor: "var(--bg-tertiary)",
                         display: "flex",
                         alignItems: "center",
-                        justifyContent: "center",
-                        fontWeight: 600,
-                        fontSize: "12px",
+                        justifyContent: "space-between",
                       }}
                     >
-                      JH
+                      <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                        <div
+                          style={{
+                            width: "32px",
+                            height: "32px",
+                            borderRadius: "50%",
+                            backgroundColor: "var(--accent-subtle)",
+                            color: "var(--accent)",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            fontWeight: 600,
+                            fontSize: "12px",
+                            overflow: "hidden",
+                          }}
+                        >
+                          {acc.avatar?.startsWith("http") ? (
+                            <img src={acc.avatar} alt={acc.username} style={{ width: "100%", height: "100%" }} />
+                          ) : (
+                            acc.avatar || acc.username.slice(0, 2).toUpperCase()
+                          )}
+                        </div>
+                        <div>
+                          <div style={{ fontSize: "13px", fontWeight: 500, color: "var(--text-primary)" }}>
+                            {acc.name || acc.username}
+                          </div>
+                          <div style={{ fontSize: "11px", color: "var(--text-muted)" }}>
+                            @{acc.username} &bull; Connected via GitHub OAuth
+                          </div>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={handleConnectGitHub}
+                        className="action-btn"
+                        style={{ border: "1px solid var(--border-medium)", backgroundColor: "var(--bg-hover)" }}
+                      >
+                        <Plus size={13} /> Add Account
+                      </button>
                     </div>
-                    <div>
-                      <div style={{ fontSize: "13px", fontWeight: 500, color: "var(--text-primary)" }}>james</div>
-                      <div style={{ fontSize: "11px", color: "var(--text-muted)" }}>Connected via GitHub OAuth</div>
-                    </div>
-                  </div>
-                  <button
-                    type="button"
-                    className="action-btn"
-                    style={{ border: "1px solid var(--border-medium)", backgroundColor: "var(--bg-hover)" }}
-                  >
-                    <Plus size={13} /> Add Account
-                  </button>
+                  ))}
                 </div>
 
                 {/* Multi-select for repos & Connected Repos list */}

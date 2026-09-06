@@ -11,5 +11,11 @@
     "build": "npm run build --workspace=@projectmd/web",
     "start": "npm run start --workspace=@projectmd/web",
     "lint": "npm run lint --workspace=@projectmd/web"
+  },
+  "overrides": {
+    "next": {
+      "postcss": "^8.5.28"
+    },
+    "postcss": "^8.5.28"
   }
 }

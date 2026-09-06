@@ -24,17 +24,18 @@ gantt
 ### Phase 1: Core Shell & Architecture
 - [x] Establish monorepo structure with `apps/web` and `packages/cli`.
 - [x] Configure `.projectmd/config.json` schema and living canon directories.
-- [ ] Build dual equal-panel layout with `react-resizable-panels`.
-- [ ] Implement collapsible icon rail and natural file tree scanner.
+- [x] Build dual equal-panel layout with `react-resizable-panels`.
+- [x] Implement collapsible icon rail and natural file tree scanner.
 
 ### Phase 2: Rendering & Block Editing
-- [ ] Implement Markdown AST pipeline with `remark-gfm`, `remark-math`, and `rehype-katex`.
-- [ ] Integrate Mermaid.js with `react-zoom-pan-pinch` and flip-to-edit toggle.
-- [ ] Build inline block editor and local disk write API (`/api/content`).
+- [x] Implement Markdown AST pipeline with `remark-gfm`, `remark-math`, and `rehype-katex`.
+- [x] Integrate Mermaid.js with `react-zoom-pan-pinch` and flip-to-edit toggle.
+- [x] Build inline block editor and local disk write API (`/api/content`).
 
 ### Phase 3: Distribution & CLI
 - [ ] Implement `@projectmd/cli` runner script.
-- [ ] Validate dark/light themes and keyboard shortcuts (`Cmd+\`, `Cmd+B`, `Cmd+S`).
+- [x] Validate dark/light themes and keyboard shortcuts (`Cmd+\`, `Cmd+B`, `Cmd+S`).
+- [x] Multi-Repo GitHub OAuth integration and client-isolated account manager.
 
 ---
 
