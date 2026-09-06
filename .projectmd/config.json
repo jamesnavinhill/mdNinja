@@ -1,0 +1,24 @@
+{
+  "$schema": "https://projectmd.dev/schema.json",
+  "name": "projectmd",
+  "canon": "./projectmd",
+  "include": [
+    "projectmd/**/*.md",
+    "docs/**/*.md",
+    ".agents/**/*.md",
+    "*.md"
+  ],
+  "exclude": [
+    "**/node_modules/**",
+    "**/.git/**",
+    "**/.next/**"
+  ],
+  "preferences": {
+    "defaultLayout": "single",
+    "pinned": [
+      "projectmd/roadmaps/roadmap.md",
+      "projectmd/diagrams/architecture.md",
+      "projectmd_outline.md"
+    ]
+  }
+}

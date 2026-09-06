@@ -1,0 +1,14 @@
+{
+  "name": "@projectmd/cli",
+  "version": "1.0.0",
+  "description": "CLI launcher for projectmd - the zero-constraint living canon viewer",
+  "bin": {
+    "projectmd": "./bin/projectmd.js"
+  },
+  "scripts": {
+    "build": "echo 'CLI ready'"
+  },
+  "keywords": ["markdown", "living-canon", "agents", "adr", "roadmap", "diagrams"],
+  "author": "",
+  "license": "MIT"
+}

@@ -59,41 +59,81 @@ Modern development repositories are filled with Markdown:
 | **Chrome & Canvas**     | **No Header Row.** Maximum vertical height. Collapsible icon rail/sidepanel.                          | Full-height canvas. Left rail holds project picker, natural file tree, search, settings, and profile. Collapsible to 0px width.                               |
 | **LaTeX Support**       | Native inline (`$math$`) and display (`$$math$$`) math formula rendering.                             | `remark-math` + `rehype-katex`. Instant, zero-layout-shift mathematical typography.                                                                           |
 | **Diagram Engine**      | Open, adaptable, interactive, themeable. **Zero handrolling.**                                        | Mermaid.js (`@mermaid-js/mermaid`) + Excalidraw (`@excalidraw/excalidraw`) wrapped in `react-zoom-pan-pinch` for smooth vector zoom and pan.                  |
-| **Directory Discovery** | Native repo scanning. Surface existing `.agents/`, `docs/`, `.github/`, and root files.               | Scans standard directories automatically upon launch. Supports custom paths via `--paths`. Does not force files into a proprietary folder.                    |
-| **Local Config (`.`)**  | Understand the technical role of dot (`.`) folders (hidden metadata vs visible content).              | Optional `.projectmd/` used solely for local UI state/preferences (pinned files, recent projects). Never stores actual Markdown content.                      |
-| **Git Integration**     | Simple, predictable, un-overengineered.                                                               | Local: Direct `fs` writes to disk. Existing IDE/terminal handles Git. Optional simple "Commit" button in UI. Remote Hub: Standard GitHub REST/GraphQL API.    |
+| **Living Canon (`projectmd/`)** | Visible, dedicated home for "the goods" (ADRs, roadmaps, diagrams, research). Replaces generic `ops/` to avoid SRE/DevOps clashes. | Top-level `projectmd/` folder containing `decisions/`, `roadmaps/`, `diagrams/`, `research/`. |
+| **Tool Config (`.projectmd/`)** | Hidden dot-folder strictly for config, settings, and file inclusion mappings.                           | `.projectmd/config.json` stores user preferences, path mappings, and layout overrides. Never stores actual project documentation. |
+| **Directory Discovery**         | Aggregates existing repo directories (`docs/`, `.agents/`, root files) naturally.                       | Scans configured or standard paths without forcing files into a proprietary folder structure. Supports CLI `--paths`. |
+| **Git Integration**             | Simple, predictable, un-overengineered.                                                                 | Local: Direct `fs` writes to disk. Existing IDE/terminal handles Git. Optional simple "Commit" button in UI. Remote Hub: Standard GitHub REST/GraphQL API. |
 
 ---
 
-## 4. Repository Discovery & Information Architecture
+## 4. Repository Discovery & Directory Architecture
 
-### 4.1 How `projectmd` Discovers Files
-
-When invoked inside a project (`npx projectmd`), the scanner inspects the project root:
+`projectmd` establishes a clean, explicit boundary between **tool configuration** (hidden) and **project canon** (visible):
 
 ```
-[Project Root]
- ├── .agents/                 <-- Auto-detected: Agent instructions, skills, rules, memory
- ├── docs/ (or doc/, wiki/)   <-- Auto-detected: Human guides, ADRs, specs
- ├── .github/                 <-- Auto-detected: PR/issue templates, agent prompts
- ├── diagrams/                <-- Auto-detected: Architecture & schema files
- ├── README.md, CHANGELOG.md  <-- Auto-detected: Root Markdown files
- └── .projectmd/ (optional)   <-- Lightweight local UI preferences (pins, themes)
+[Repository Root]
+├── .projectmd/                     <-- [Hidden] Tool Configuration & Preferences
+│   └── config.json                 <-- Included paths, layout preferences, custom mappings
+│
+├── projectmd/                      <-- [Visible] The Living Canon ("The Goods")
+│   ├── decisions/                  <-- Architecture Decision Records (ADRs)
+│   │   ├── 0000-template.md
+│   │   └── 0001-stack-decision.md
+│   ├── roadmaps/                   <-- Gantt timelines, milestone tasklists
+│   │   └── roadmap.md
+│   ├── diagrams/                   <-- Architecture schemas (Mermaid, Excalidraw)
+│   ├── research/                   <-- Spikes, token economics, benchmarks
+│   └── notes/                      <-- Scratchpads, engineering notes
+│
+├── docs/                           <-- Existing product/user/API docs (pulled in)
+├── .agents/                        <-- Existing AI agent skills/rules (pulled in)
+└── README.md, CHANGELOG.md         <-- Root Markdown files (pulled in)
 ```
 
-### 4.2 Custom Path CLI Flags
+### 4.1 The Role of `.projectmd/` (Dot / Hidden Directory)
+- **Purpose:** Configuration, local workspace state, and path definitions.
+- **Why it is hidden:** Keeps developer tool preferences and config from cluttering the visible repository file tree.
+- **Contents:**
+  - `config.json`: The central mapping file that dictates what folders and files `projectmd` scans and surfaces.
 
-If a project uses custom directory conventions, flags pass them directly to the scanner:
-
-```bash
-# Point to custom documentation and agent directories
-npx projectmd --paths ./specs,./architecture,.gemini/skills,./rfc
+#### Example `.projectmd/config.json`
+```json
+{
+  "$schema": "https://projectmd.dev/schema.json",
+  "name": "Project Name",
+  "canon": "./projectmd",
+  "include": [
+    "projectmd/**/*.md",
+    "docs/**/*.md",
+    ".agents/**/*.md",
+    "*.md"
+  ],
+  "exclude": [
+    "**/node_modules/**",
+    "**/.git/**"
+  ],
+  "preferences": {
+    "defaultLayout": "single",
+    "pinned": [
+      "projectmd/roadmaps/roadmap.md",
+      "projectmd/diagrams/architecture.md"
+    ]
+  }
+}
 ```
 
-### 4.3 Understanding the Dot (`.`) Prefix
+### 4.2 The Role of `projectmd/` (Non-Dot / Visible Directory)
+- **Purpose:** Houses "the goods"—the living operational documentation of the project.
+- **Why it replaces generic `ops/`:** Standard `ops/` or `operations/` folders frequently clash with infrastructure, SRE, Docker, and Kubernetes scripts. A visible `projectmd/` directory immediately signals: *"This is the version-controlled Markdown canon for this project."*
+- **Contents:**
+  - `decisions/`: ADRs detailing architectural choices with agent enforcement directives.
+  - `roadmaps/`: Living timelines, progress tracking, and checkable tasklists.
+  - `diagrams/`: Top-level architecture diagrams, C4 models, and visual maps.
+  - `research/`: Technical evaluations, literature spikes, and benchmarks.
 
-- **Filesystem convention:** Any folder prefixed with a `.` (e.g., `.agents`, `.github`, `.vscode`, `.projectmd`) is treated as hidden by Unix/POSIX and developer tools to keep project root directories uncluttered.
-- **`projectmd` Handling:** Treats both hidden configuration folders (`.agents/`) and visible documentation folders (`docs/`) with equal first-class visibility in the sidepanel file tree.
+### 4.3 External Directory Aggregation (`docs/`, `.agents/`)
+- Existing documentation (`docs/`) and AI agent configurations (`.agents/`, `.cursor/`, `.github/`) are **never relocated or forced into a silo**.
+- `projectmd` simply reads their paths (as declared in `.projectmd/config.json` or discovered via standard defaults) and presents them cohesively within the equal-panel file tree.
 
 ---
 
