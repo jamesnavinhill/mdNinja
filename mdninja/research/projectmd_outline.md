@@ -52,17 +52,17 @@ Modern development repositories are filled with Markdown:
 
 ## 3. User Decisions & Architectural Constants
 
-| Architectural Area      | User Decision & Requirement                                                                           | Technical Implementation                                                                                                                                      |
-| :---------------------- | :---------------------------------------------------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| **Product Identity**    | Named **`projectmd`** (clean, direct, unpretentious).                                                 | Package names: `@projectmd/cli`, `@projectmd/core`.                                                                                                           |
-| **Split-Panel Layout**  | **Two Equal Panels.** No "main vs context" constraint. One open by default; second toggled on demand. | Built on [`react-resizable-panels`](https://github.com/bvaughn/react-resizable-panels). Both panes have identical capabilities (render, edit, flip diagrams). |
-| **Chrome & Canvas**     | **No Header Row.** Maximum vertical height. Collapsible icon rail/sidepanel.                          | Full-height canvas. Left rail holds project picker, natural file tree, search, settings, and profile. Collapsible to 0px width.                               |
-| **LaTeX Support**       | Native inline (`$math$`) and display (`$$math$$`) math formula rendering.                             | `remark-math` + `rehype-katex`. Instant, zero-layout-shift mathematical typography.                                                                           |
-| **Diagram Engine**      | Open, adaptable, interactive, themeable. **Zero handrolling.**                                        | Mermaid.js (`@mermaid-js/mermaid`) + Excalidraw (`@excalidraw/excalidraw`) wrapped in `react-zoom-pan-pinch` for smooth vector zoom and pan.                  |
-| **Living Canon (`projectmd/`)** | Visible, dedicated home for "the goods" (ADRs, roadmaps, diagrams, research). Replaces generic `ops/` to avoid SRE/DevOps clashes. | Top-level `projectmd/` folder containing `decisions/`, `roadmaps/`, `diagrams/`, `research/`. |
-| **Tool Config (`.projectmd/`)** | Hidden dot-folder strictly for config, settings, and file inclusion mappings.                           | `.projectmd/config.json` stores user preferences, path mappings, and layout overrides. Never stores actual project documentation. |
-| **Directory Discovery**         | Aggregates existing repo directories (`docs/`, `.agents/`, root files) naturally.                       | Scans configured or standard paths without forcing files into a proprietary folder structure. Supports CLI `--paths`. |
-| **Git Integration**             | Simple, predictable, un-overengineered.                                                                 | Local: Direct `fs` writes to disk. Existing IDE/terminal handles Git. Optional simple "Commit" button in UI. Remote Hub: Standard GitHub REST/GraphQL API. |
+| Architectural Area              | User Decision & Requirement                                                                                                        | Technical Implementation                                                                                                                                      |
+| :------------------------------ | :--------------------------------------------------------------------------------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Product Identity**            | Named **`projectmd`** (clean, direct, unpretentious).                                                                              | Package names: `@projectmd/cli`, `@projectmd/core`.                                                                                                           |
+| **Split-Panel Layout**          | **Two Equal Panels.** No "main vs context" constraint. One open by default; second toggled on demand.                              | Built on [`react-resizable-panels`](https://github.com/bvaughn/react-resizable-panels). Both panes have identical capabilities (render, edit, flip diagrams). |
+| **Chrome & Canvas**             | **No Header Row.** Maximum vertical height. Collapsible icon rail/sidepanel.                                                       | Full-height canvas. Left rail holds project picker, natural file tree, search, settings, and profile. Collapsible to 0px width.                               |
+| **LaTeX Support**               | Native inline (`$math$`) and display (`$$math$$`) math formula rendering.                                                          | `remark-math` + `rehype-katex`. Instant, zero-layout-shift mathematical typography.                                                                           |
+| **Diagram Engine**              | Open, adaptable, interactive, themeable. **Zero handrolling.**                                                                     | Mermaid.js (`@mermaid-js/mermaid`) + Excalidraw (`@excalidraw/excalidraw`) wrapped in `react-zoom-pan-pinch` for smooth vector zoom and pan.                  |
+| **Living Canon (`projectmd/`)** | Visible, dedicated home for "the goods" (ADRs, roadmaps, diagrams, research). Replaces generic `ops/` to avoid SRE/DevOps clashes. | Top-level `projectmd/` folder containing `decisions/`, `roadmaps/`, `diagrams/`, `research/`.                                                                 |
+| **Tool Config (`.projectmd/`)** | Hidden dot-folder strictly for config, settings, and file inclusion mappings.                                                      | `.projectmd/config.json` stores user preferences, path mappings, and layout overrides. Never stores actual project documentation.                             |
+| **Directory Discovery**         | Aggregates existing repo directories (`docs/`, `.agents/`, root files) naturally.                                                  | Scans configured or standard paths without forcing files into a proprietary folder structure. Supports CLI `--paths`.                                         |
+| **Git Integration**             | Simple, predictable, un-overengineered.                                                                                            | Local: Direct `fs` writes to disk. Existing IDE/terminal handles Git. Optional simple "Commit" button in UI. Remote Hub: Standard GitHub REST/GraphQL API.    |
 
 ---
 
@@ -91,12 +91,14 @@ Modern development repositories are filled with Markdown:
 ```
 
 ### 4.1 The Role of `.projectmd/` (Dot / Hidden Directory)
+
 - **Purpose:** Configuration, local workspace state, and path definitions.
 - **Why it is hidden:** Keeps developer tool preferences and config from cluttering the visible repository file tree.
 - **Contents:**
   - `config.json`: The central mapping file that dictates what folders and files `projectmd` scans and surfaces.
 
 #### Example `.projectmd/config.json`
+
 ```json
 {
   "$schema": "https://projectmd.dev/schema.json",
@@ -123,6 +125,7 @@ Modern development repositories are filled with Markdown:
 ```
 
 ### 4.2 The Role of `projectmd/` (Non-Dot / Visible Directory)
+
 - **Purpose:** Houses "the goods"—the living operational documentation of the project.
 - **Why it replaces generic `ops/`:** Standard `ops/` or `operations/` folders frequently clash with infrastructure, SRE, Docker, and Kubernetes scripts. A visible `projectmd/` directory immediately signals: *"This is the version-controlled Markdown canon for this project."*
 - **Contents:**
@@ -132,6 +135,7 @@ Modern development repositories are filled with Markdown:
   - `research/`: Technical evaluations, literature spikes, and benchmarks.
 
 ### 4.3 External Directory Aggregation (`docs/`, `.agents/`)
+
 - Existing documentation (`docs/`) and AI agent configurations (`.agents/`, `.cursor/`, `.github/`) are **never relocated or forced into a silo**.
 - `projectmd` simply reads their paths (as declared in `.projectmd/config.json` or discovered via standard defaults) and presents them cohesively within the equal-panel file tree.
 
