@@ -6,6 +6,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ---
 
+## [Unreleased] - 2026-09-06
+
+### Fixed (truth / drift / security hardening)
+* **Single living-canon config contract.** Extracted a shared `@mdninja/canon` package (`packages/canon/index.js`) as the one source of truth for the `.mdninja/config.json` shape + canonical `mdninja/` layout; both `mdninja init` (CLI) and `POST /api/scaffold` (web) now write the identical artifact. Previously the two scaffolders copied divergent configs that did not match the runtime scanner.
+* **Scaffold only what the runtime reads.** Generated config is now exactly `{ $schema, name, canon }`. Removed the unimplemented `include` / `exclude` / `preferences.pinned` / `preferences.defaultLayout` fields from the scaffolded artifact (the scanner never read them, so committing them advertised a false contract).
+* **Canonical directory order unified.** Both scaffolders now create `audits, changelog, decisions, diagrams, notes, research, roadmaps, standards` (the web route previously used a different set).
+* **OAuth postMessage hardened.** `/api/auth/callback/github` now posts the account payload to the application origin (was `*`); the Settings listener now validates `event.origin === window.location.origin` (tokens are no longer broadcast to an arbitrary opener window).
+* **Docs corrected to match code.** README, getting-started, configuration-guide, and architecture-overview now describe only implemented behavior: clarified what `mdninja dev -d` does and doesn't affect, that the bundled workbench scans the directory it is launched from, and that `mdninja build` requires a monorepo checkout. Replaced all non-portable absolute `file:///c:/...` ADR links with repo-relative links.
+
+---
+
 ## [1.0.0] - 2026-09-06
 
 ### Added

@@ -10,12 +10,14 @@ Welcome to **mdNinja**—the zero-constraint visual Markdown workbench and livin
 Run mdNinja instantly in any repository without cloning:
 
 ```bash
-# Launch the visual living canon workbench
+# Launch the visual living canon workbench (scans the current directory)
 npx @mdninja/cli
 
-# Or scaffold a fresh Living Canon layout
+# Or scaffold a fresh Living Canon layout in the current directory
 npx @mdninja/cli init
 ```
+
+> The published CLI scans **the directory you launch it from**. For a source-built workbench pointing at an arbitrary repo, run the monorepo locally instead (Option D).
 
 ### Option B: Explore the Public Live Demo
 Visit the production deployment at [mdninja.navinhill.com](https://mdninja.navinhill.com) to view the live open-source canon, roadmaps, architecture diagrams, and ADRs with zero install.

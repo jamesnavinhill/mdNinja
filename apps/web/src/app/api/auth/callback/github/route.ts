@@ -75,7 +75,17 @@ export async function GET(req: NextRequest) {
 
     const userData = await userRes.json();
 
-    const accountPayload = {
+// Restrict the postMessage to the application's own origin so the token is
+  // never broadcast to an arbitrary opener window (was "*").
+  const host = req.headers.get("host") || "localhost:3000";
+  const protocol = host.includes("localhost") || host.startsWith("127.") ? "http" : "https";
+  const appOrigin = (
+    process.env.NEXT_PUBLIC_APP_URL ||
+    process.env.SITE_URL ||
+    `${protocol}://${host}`
+  ).replace(/\/$/, "");
+
+  const accountPayload = {
       username: userData.login,
       name: userData.name || userData.login,
       avatar: userData.avatar_url,
@@ -98,8 +108,9 @@ export async function GET(req: NextRequest) {
                 type: "GH_AUTH_SUCCESS",
                 account: ${JSON.stringify(accountPayload)}
               };
+              const targetOrigin = ${JSON.stringify(appOrigin)};
               if (window.opener) {
-                window.opener.postMessage(data, "*");
+                window.opener.postMessage(data, targetOrigin);
                 setTimeout(function() { window.close(); }, 400);
               } else {
                 window.location.href = "/";

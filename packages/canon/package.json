@@ -1,0 +1,8 @@
+{
+  "name": "@mdninja/canon",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Single source of truth for the mdNinja living-canon configuration contract and scaffolding.",
+  "main": "index.js",
+  "license": "MIT"
+}

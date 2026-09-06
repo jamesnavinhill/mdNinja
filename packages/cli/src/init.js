@@ -1,75 +1,8 @@
 const fs = require("fs/promises");
 const path = require("path");
+const { initCanon: scaffoldCanon } = require("@mdninja/canon");
 
-async function initCanon(targetDir = process.cwd(), options = {}) {
-  console.log(`\n🥷 Initializing mdNinja Living Canon at: ${targetDir}\n`);
-
-  // 1. Create .mdninja/config.json
-  const dotMdNinja = path.join(targetDir, ".mdninja");
-  await fs.mkdir(dotMdNinja, { recursive: true });
-  const configPath = path.join(dotMdNinja, "config.json");
-
-  let createdConfig = false;
-  try {
-    if (options.force) throw new Error("Force overwrite");
-    await fs.access(configPath);
-    console.log(`  ✓ .mdninja/config.json already exists (skipping)`);
-  } catch {
-    const configData = {
-      $schema: "https://mdninja.navinhill.com/schema.json",
-      name: path.basename(targetDir),
-      canon: "./mdninja",
-      include: [
-        "mdninja/**/*.md",
-        "docs/**/*.md",
-        ".agents/**/*.md",
-        "*.md"
-      ],
-      exclude: [
-        "**/node_modules/**",
-        "**/.git/**",
-        "**/.next/**",
-        "**/dist/**",
-        "**/build/**"
-      ],
-      preferences: {
-        defaultLayout: "single",
-        pinned: [
-          "mdninja/roadmaps/roadmap.md",
-          "mdninja/diagrams/architecture.md"
-        ]
-      }
-    };
-    await fs.writeFile(configPath, JSON.stringify(configData, null, 2), "utf8");
-    console.log(`  + Created .mdninja/config.json`);
-    createdConfig = true;
-  }
-
-  // 2. Create canonical directories
-  const canonRoot = path.join(targetDir, "mdninja");
-  const subDirs = [
-    "decisions",
-    "roadmaps",
-    "diagrams",
-    "standards",
-    "audits",
-    "changelog",
-    "notes",
-    "research"
-  ];
-
-  for (const dir of subDirs) {
-    const dirPath = path.join(canonRoot, dir);
-    await fs.mkdir(dirPath, { recursive: true });
-  }
-  console.log(`  + Scaffolded mdninja/ canonical directories (${subDirs.join(", ")})`);
-
-  // 3. Create ADR 0000 template if missing
-  const templatePath = path.join(canonRoot, "decisions", "0000-template.md");
-  try {
-    await fs.access(templatePath);
-  } catch {
-    const templateContent = `# ADR [Number]: [Title]
+const ADR_TEMPLATE = `# ADR [Number]: [Title]
 
 **Date:** YYYY-MM-DD  
 **Status:** [Proposed | Accepted | Superseded | Deprecated]  
@@ -99,16 +32,8 @@ async function initCanon(targetDir = process.cwd(), options = {}) {
 * **DO:** [e.g., Always use X syntax when generating components]
 * **DO NOT:** [e.g., Never import Y library, as it violates this architecture]
 `;
-    await fs.writeFile(templatePath, templateContent, "utf8");
-    console.log(`  + Created mdninja/decisions/0000-template.md`);
-  }
 
-  // 4. Create initial roadmap template if missing
-  const roadmapPath = path.join(canonRoot, "roadmaps", "roadmap.md");
-  try {
-    await fs.access(roadmapPath);
-  } catch {
-    const roadmapContent = `# Living Roadmap
+const ROADMAP_TEMPLATE = `# Living Roadmap
 
 ## 📊 Visual Timeline
 
@@ -127,12 +52,46 @@ gantt
 - [x] Scaffold repository canon structure.
 - [ ] Implement core features.
 `;
-    await fs.writeFile(roadmapPath, roadmapContent, "utf8");
+
+/**
+ * Initialize the living canon in `targetDir`.
+ * The config shape + canonical directory layout come from the shared
+ * `@mdninja/canon` contract (single source of truth). This CLI layer only adds
+ * friendly logging and optional seed documents (ADR template + roadmap).
+ */
+async function initCanon(targetDir = process.cwd(), options = {}) {
+  console.log(`\n🥷 Initializing mdNinja Living Canon at: ${targetDir}\n`);
+
+  // Single source of truth: contract + directory scaffold.
+  const { createdConfig } = await scaffoldCanon(targetDir, { force: options.force });
+  console.log(
+    createdConfig
+      ? `  + Created .mdninja/config.json`
+      : `  ✓ .mdninja/config.json already exists (skipping)`
+  );
+
+  const canonRoot = path.join(targetDir, "mdninja");
+
+  // Seed ADR template (only if missing).
+  const templatePath = path.join(canonRoot, "decisions", "0000-template.md");
+  try {
+    await fs.access(templatePath);
+  } catch {
+    await fs.writeFile(templatePath, ADR_TEMPLATE, "utf8");
+    console.log(`  + Created mdninja/decisions/0000-template.md`);
+  }
+
+  // Seed roadmap template (only if missing).
+  const roadmapPath = path.join(canonRoot, "roadmaps", "roadmap.md");
+  try {
+    await fs.access(roadmapPath);
+  } catch {
+    await fs.writeFile(roadmapPath, ROADMAP_TEMPLATE, "utf8");
     console.log(`  + Created mdninja/roadmaps/roadmap.md`);
   }
 
   console.log(`\n✨ mdNinja Living Canon initialized successfully!`);
-  console.log(`Run 'npx mdninja' to start viewing your canon.\n`);
+  console.log(`Run 'npx @mdninja/cli' to start viewing your canon.\n`);
 }
 
 module.exports = { initCanon };

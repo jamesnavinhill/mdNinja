@@ -35,12 +35,14 @@ Explore the public live demo: **[mdninja.navinhill.com](https://mdninja.navinhil
 Run mdNinja in any repository or directory using `npx`:
 
 ```bash
-# Launch the visual living canon workbench
+# Run the bundled workbench against your repo (scans the current directory)
 npx @mdninja/cli
 
-# Scaffold standard .mdninja configuration and canonical folders
+# Scaffold the .mdninja config + canonical mdninja/ folders in the current directory
 npx @mdninja/cli init
 ```
+
+> The published CLI scans **the directory you launch it from**. For a fully local, source-built workbench (any repo, live reload), run the monorepo locally (step 4).
 
 ### 2. Connect Your AI Assistant (MCP)
 Add mdNinja to your AI coding assistant (Cursor, Claude Desktop, Windsurf) via stdio:
@@ -105,10 +107,10 @@ Visit `http://localhost:3000` in your browser.
 
 | Command | Description |
 | :--- | :--- |
-| `mdninja dev [options]` | Start the local visual workbench (default command). Options: `-p, --port <port>`, `--no-open`, `-d, --dir <path>`. |
+| `mdninja dev [options]` | Start the local visual workbench (default command). Options: `-p, --port <port>`, `--no-open`, `-d, --dir <path>`. Note: the **bundled workbench** scans the directory it is launched from; `-d` currently only flows to the MCP server, not the web scanner. |
 | `mdninja init [options]` | Scaffold `.mdninja/config.json` and canonical directories (`mdninja/`). Options: `-f, --force`, `-d, --dir <path>`. |
 | `mdninja mcp` | Launch the Model Context Protocol (MCP) server over `stdio` for AI assistants. |
-| `mdninja build` | Sync living canon documents and generate production bundle. |
+| `mdninja build` | Sync living canon + build. **Requires a monorepo checkout** (spawns the web app's `sync-canon`/`build` scripts); a no-op-friendly standard for CI. |
 
 ---
 

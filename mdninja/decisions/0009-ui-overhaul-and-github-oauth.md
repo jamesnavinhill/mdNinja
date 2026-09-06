@@ -73,3 +73,6 @@ We will fix all 13 items in one coordinated pass, at the source:
 * **DO:** Route icons through the central icon registry so new packs integrate without touching navigation/tree components.
 * **DO NOT:** Reintroduce hardcoded foreground colors (e.g. `#e2e8f0`) for content that must theme across dark/light — always use theme variables.
 * **DO NOT:** Add env vars under a new name (e.g. `SITE_URL`) for values the code already reads under an existing name (`NEXT_PUBLIC_APP_URL`); fix at the read site or the env, not both drifted.
+* **DO:** Treat `packages/canon/index.js` (`@mdninja/canon`) as the single source of truth for the `.mdninja/config.json` shape and canonical `mdninja/` layout. `mdninja init` and `POST /api/scaffold` both delegate to it. Never copy the config object or directory list into another file.
+* **DO:** Scaffold/write ONLY config fields the runtime actually reads (today: `name`, `canon`). If you want `include`, `exclude`, or `pinned` to be live, implement them in `apps/web/src/lib/scanner.ts#getProjectConfig` first, then document them — never document a config the code ignores.
+* **DO:** Keep every doc link repo-relative. Never commit absolute `file:///...` paths.

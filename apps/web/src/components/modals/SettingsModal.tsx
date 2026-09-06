@@ -104,6 +104,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   // Listen for OAuth completion message from popup window
   useEffect(() => {
     const handleAuthMessage = async (event: MessageEvent) => {
+      // Accept only messages from this application's own origin.
+      if (event.origin !== window.location.origin) return;
       if (event.data?.type === "GH_AUTH_SUCCESS" && event.data.account) {
         const { username, name, avatar, token } = event.data.account;
 
