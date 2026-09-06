@@ -29,8 +29,23 @@ export const Panel: React.FC<PanelProps> = ({
   const [originalContent, setOriginalContent] = useState<string>(fallback);
   const [isEditMode, setIsEditMode] = useState<boolean>(false);
   const [saveStatus, setSaveStatus] = useState<"saved" | "unsaved" | "saving">("saved");
+  const [showSavedToast, setShowSavedToast] = useState<boolean>(false);
+  const savedToastTimer = React.useRef<ReturnType<typeof setTimeout> | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(!fallback && !!filePath);
   const [error, setError] = useState<string | null>(null);
+
+  // Flash a "saved" confirmation that auto-hides after a short delay.
+  const flashSaved = useCallback(() => {
+    setShowSavedToast(true);
+    if (savedToastTimer.current) clearTimeout(savedToastTimer.current);
+    savedToastTimer.current = setTimeout(() => setShowSavedToast(false), 1600);
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (savedToastTimer.current) clearTimeout(savedToastTimer.current);
+    };
+  }, []);
 
   // Load file content whenever filePath changes
   useEffect(() => {
@@ -93,11 +108,12 @@ export const Panel: React.FC<PanelProps> = ({
 
       setOriginalContent(content);
       setSaveStatus("saved");
+      flashSaved();
     } catch (err) {
       setSaveStatus("unsaved");
       setError("Failed to save changes to disk");
     }
-  }, [filePath, content, saveStatus]);
+  }, [filePath, content, saveStatus, flashSaved]);
 
   // Listen for Cmd+S shortcut globally when panel is active
   useEffect(() => {
@@ -159,20 +175,19 @@ export const Panel: React.FC<PanelProps> = ({
                   <Save size={12} color="var(--warning)" />
                   <span className="status-pill status-unsaved">Save</span>
                 </button>
-              ) : (
-                <span className="status-pill status-saved" style={{ display: "flex", alignItems: "center", gap: 3 }}>
+              ) : showSavedToast ? (
+                <span className="status-pill status-saved save-toast" style={{ display: "flex", alignItems: "center", gap: 3 }}>
                   <Check size={10} /> saved
                 </span>
-              )}
+              ) : null}
 
               <button
                 type="button"
                 className={`action-btn ${isEditMode ? "active" : ""}`}
                 onClick={() => setIsEditMode(!isEditMode)}
-                title={isEditMode ? "Switch to Preview View" : "Switch to Raw Editor View"}
+                title={isEditMode ? "Switch to Preview View" : "Edit Raw Markdown"}
               >
                 {isEditMode ? <Eye size={13} /> : <Code size={13} />}
-                <span>{isEditMode ? "Preview" : "Edit"}</span>
               </button>
             </>
           )}
@@ -184,7 +199,6 @@ export const Panel: React.FC<PanelProps> = ({
             title={isSplitOpen ? "Single Panel Mode (Cmd+\\)" : "Split into Two Equal Panels (Cmd+\\)"}
           >
             <Columns size={13} />
-            <span>{isSplitOpen ? "Single" : "Split"}</span>
           </button>
 
           {panelId === "panel2" && onClosePanel && (

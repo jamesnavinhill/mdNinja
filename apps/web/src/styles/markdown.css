@@ -99,7 +99,7 @@
   background-color: var(--bg-tertiary);
   border-radius: var(--radius-sm);
   border: 1px solid var(--border-subtle);
-  color: #e2e8f0;
+  color: var(--text-primary);
 }
 
 .markdown-body pre {
@@ -108,7 +108,8 @@
   overflow: auto;
   font-size: 13px;
   line-height: 1.5;
-  background-color: var(--bg-secondary);
+  background-color: var(--code-block-bg, var(--bg-tertiary));
+  color: var(--code-block-text, var(--text-primary));
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
 }
@@ -120,6 +121,16 @@
   border: none;
   color: inherit;
   font-size: inherit;
+}
+
+/* Code blocks stay dark & legible in BOTH themes.*/
+:root {
+  --code-block-bg: #14161f;
+  --code-block-text: #e6e9f2;
+}
+[data-theme="light"] {
+  --code-block-bg: #14161f;
+  --code-block-text: #e6e9f2;
 }
 
 /* Tables */
@@ -157,13 +168,35 @@
 
 .markdown-body li.task-list-item {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   gap: 8px;
 }
 
-.markdown-body input[type="checkbox"] {
-  accent-color: var(--accent);
+.markdown-body li.task-list-item input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  flex-shrink: 0;
+  width: 15px;
+  height: 15px;
+  margin: 0;
+  border: 1.5px solid var(--border-medium);
+  border-radius: 4px;
+  background-color: var(--bg-tertiary);
   cursor: pointer;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.markdown-body li.task-list-item input[type="checkbox"]:hover {
+  border-color: var(--accent);
+}
+
+.markdown-body li.task-list-item input[type="checkbox"]:checked {
+  background-color: var(--accent);
+  border-color: var(--accent);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none'%3E%3Cpath d='M13 4L6.5 11L3 7.5' stroke='%23090a0f' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 11px;
 }
 
 /* KaTeX Equations */

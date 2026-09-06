@@ -9,10 +9,14 @@ export async function GET(req: NextRequest) {
     );
   }
 
-  // Derive base URL from request or environment
+  // Derive base URL. Prefer the explicit public URL; fall back to the request origin.
   const host = req.headers.get("host") || "localhost:3000";
-  const protocol = host.includes("localhost") ? "http" : "https";
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || `${protocol}://${host}`;
+  const protocol = host.includes("localhost") || host.startsWith("127.") ? "http" : "https";
+  const appUrl = (
+    process.env.NEXT_PUBLIC_APP_URL ||
+    process.env.SITE_URL ||
+    `${protocol}://${host}`
+  ).replace(/\/$/, "");
   const redirectUri = `${appUrl}/api/auth/callback/github`;
 
   const githubAuthUrl = new URL("https://github.com/login/oauth/authorize");

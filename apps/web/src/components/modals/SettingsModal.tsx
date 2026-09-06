@@ -13,6 +13,15 @@ import {
   ToggleRight,
   ExternalLink,
 } from "lucide-react";
+import {
+  IconPack,
+  NavIconKey,
+  getNavIcon,
+  loadIconPack,
+  saveIconPack,
+  loadIconOverrides,
+  saveIconOverrides,
+} from "@/lib/icons";
 
 export type SettingsTab = "config" | "github" | "diagrams" | "themes";
 
@@ -44,10 +53,10 @@ const CURATED_THEMES = [
 
 const FONTS = [
   { label: "System Sans", value: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" },
-  { label: "Inter", value: "'Inter', sans-serif" },
-  { label: "Geist", value: "'Geist', -apple-system, sans-serif" },
-  { label: "Outfit", value: "'Outfit', sans-serif" },
-  { label: "JetBrains Mono", value: "'JetBrains Mono', monospace" },
+  { label: "Inter", value: "var(--font-inter), sans-serif" },
+  { label: "Geist", value: "var(--font-geist-sans), sans-serif" },
+  { label: "Outfit", value: "var(--font-outfit), sans-serif" },
+  { label: "JetBrains Mono", value: "var(--font-jbmono), monospace" },
 ];
 
 export const SettingsModal: React.FC<SettingsModalProps> = ({
@@ -69,17 +78,12 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 }) => {
   const [activeTab, setActiveTab] = useState<SettingsTab>(initialTab);
 
-  // Client-isolated GitHub account state (never shared across users)
+  // Client-isolated GitHub account state (never shared across users).
+  // Empty by default — real accounts arrive only via OAuth (see GH_AUTH_SUCCESS).
   const [githubAccounts, setGithubAccounts] = useState<
     { username: string; name: string; avatar: string; connected: boolean }[]
-  >([
-    { username: "james", name: "James Hill", avatar: "JH", connected: true },
-  ]);
-  const [repos, setRepos] = useState([
-    { name: "mdninja", active: true, branch: "main" },
-    { name: "mdninja-web", active: true, branch: "main" },
-    { name: "agent-skills-canon", active: false, branch: "dev" },
-  ]);
+  >([]);
+  const [repos, setRepos] = useState<{ name: string; active: boolean; branch: string }[]>([]);
 
   // Load client-isolated accounts and repos from localStorage
   useEffect(() => {
@@ -375,22 +379,46 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             </div>
           )}
 
-          {/* TAB 2: GitHub configurations (matching user wireframe layout) */}
+          {/* TAB 2: GitHub configurations */}
           {activeTab === "github" && (
             <div style={{ display: "flex", height: "100%", gap: "24px" }}>
-              {/* Left Column of GitHub Tab */}
+              {/* Accounts & Repositories */}
               <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "16px" }}>
-                <div>
-                  <h3 style={{ fontSize: "15px", fontWeight: 600, color: "var(--text-primary)" }}>
-                    GitHub Connections
-                  </h3>
-                  <p style={{ fontSize: "12px", color: "var(--text-secondary)", marginTop: "2px" }}>
-                    Manage connected accounts and repositories
-                  </p>
+                <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
+                  <div>
+                    <h3 style={{ fontSize: "15px", fontWeight: 600, color: "var(--text-primary)" }}>
+                      GitHub Connections
+                    </h3>
+                    <p style={{ fontSize: "12px", color: "var(--text-secondary)", marginTop: "2px" }}>
+                      Connect an account to sync repositories
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleConnectGitHub}
+                    className="action-btn"
+                    style={{ border: "1px solid var(--border-medium)", backgroundColor: "var(--bg-hover)" }}
+                  >
+                    <Plus size={13} /> Add Account
+                  </button>
                 </div>
 
-                {/* Add / Manage GitHub Accounts */}
+                {/* Connected accounts (empty-state when none) */}
                 <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                  {githubAccounts.length === 0 && (
+                    <div
+                      style={{
+                        padding: "24px 14px",
+                        textAlign: "center",
+                        border: "1px dashed var(--border-medium)",
+                        borderRadius: "var(--radius-md)",
+                        color: "var(--text-muted)",
+                        fontSize: "12.5px",
+                      }}
+                    >
+                      No GitHub account connected yet.
+                    </div>
+                  )}
                   {githubAccounts.map((acc) => (
                     <div
                       key={acc.username}
@@ -431,18 +459,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                             {acc.name || acc.username}
                           </div>
                           <div style={{ fontSize: "11px", color: "var(--text-muted)" }}>
-                            @{acc.username} &bull; Connected via GitHub OAuth
+                            @{acc.username}
                           </div>
                         </div>
                       </div>
-                      <button
-                        type="button"
-                        onClick={handleConnectGitHub}
-                        className="action-btn"
-                        style={{ border: "1px solid var(--border-medium)", backgroundColor: "var(--bg-hover)" }}
-                      >
-                        <Plus size={13} /> Add Account
-                      </button>
                     </div>
                   ))}
                 </div>
@@ -463,6 +483,13 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                     CONNECTED REPOSITORIES
                   </div>
                   <div style={{ display: "flex", flexDirection: "column", gap: "8px", overflowY: "auto" }}>
+                    {repos.length === 0 && (
+                      <div style={{ padding: "16px", textAlign: "center", color: "var(--text-muted)", fontSize: "12px" }}>
+                        {githubAccounts.length === 0
+                          ? "Connect an account to list repositories."
+                          : "No repositories loaded yet."}
+                      </div>
+                    )}
                     {repos.map((repo, idx) => (
                       <div
                         key={repo.name}
@@ -500,52 +527,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                       </div>
                     ))}
                   </div>
-                </div>
-              </div>
-
-              {/* Right Column of GitHub Tab (per wireframe: other settings / git hooks) */}
-              <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "16px" }}>
-                <div
-                  style={{
-                    padding: "14px",
-                    border: "1px solid var(--border-subtle)",
-                    borderRadius: "var(--radius-md)",
-                    backgroundColor: "var(--bg-tertiary)",
-                  }}
-                >
-                  <div style={{ fontSize: "12px", fontWeight: 600, color: "var(--text-muted)", marginBottom: "6px" }}>
-                    GIT WORKFLOWS & HOOKS
-                  </div>
-                  <p style={{ fontSize: "12px", color: "var(--text-secondary)", marginBottom: "12px" }}>
-                    Configure automatic git commits and PR synchronization
-                  </p>
-                  <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                    <label style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "12px", color: "var(--text-secondary)" }}>
-                      <input type="checkbox" defaultChecked style={{ accentColor: "var(--accent)" }} />
-                      Auto-stage markdown changes on save
-                    </label>
-                    <label style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "12px", color: "var(--text-secondary)" }}>
-                      <input type="checkbox" defaultChecked style={{ accentColor: "var(--accent)" }} />
-                      Enforce ADR status update in PR template
-                    </label>
-                  </div>
-                </div>
-
-                <div
-                  style={{
-                    padding: "14px",
-                    border: "1px solid var(--border-subtle)",
-                    borderRadius: "var(--radius-md)",
-                    backgroundColor: "var(--bg-tertiary)",
-                    flex: 1,
-                  }}
-                >
-                  <div style={{ fontSize: "12px", fontWeight: 600, color: "var(--text-muted)", marginBottom: "6px" }}>
-                    SYNC PROTOCOL
-                  </div>
-                  <p style={{ fontSize: "12px", color: "var(--text-secondary)" }}>
-                    Standard two-way file reflection: Direct disk writes for local instances; GitHub Trees API for remote Hub.
-                  </p>
                 </div>
               </div>
             </div>
@@ -615,20 +596,14 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 <h3 style={{ fontSize: "16px", fontWeight: 600, color: "var(--text-primary)" }}>
                   Styling, Themes & Comfort
                 </h3>
-                <p style={{ fontSize: "12.5px", color: "var(--text-secondary)", marginTop: "4px" }}>
-                  Tailor visual ergonomics for extended documentation reading and editing
-                </p>
               </div>
 
               {/* Curated Themes (Swatches) */}
               <div>
-                <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between" }}>
+                <div>
                   <label style={{ fontSize: "12px", fontWeight: 600, color: "var(--text-muted)" }}>
                     CURATED READING PALETTES
                   </label>
-                  <span style={{ fontSize: "11px", color: "var(--text-muted)" }}>
-                    Adapts to Dark & Light modes seamlessly
-                  </span>
                 </div>
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "10px", marginTop: "8px" }}>
                   {CURATED_THEMES.map((th) => (
@@ -650,26 +625,15 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                       }}
                     >
                       <span style={{ fontSize: "12px", fontWeight: 600 }}>{th.name}</span>
-                      <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                        <div
-                          style={{
-                            width: "14px",
-                            height: "14px",
-                            borderRadius: "50%",
-                            background: `linear-gradient(135deg, ${th.darkBg} 50%, ${th.lightBg} 50%)`,
-                            border: "1px solid rgba(255,255,255,0.2)",
-                          }}
-                          title="Dark & Light mode ready"
-                        />
-                        <div
-                          style={{
-                            width: "8px",
-                            height: "8px",
-                            borderRadius: "50%",
-                            backgroundColor: th.accent,
-                          }}
-                        />
-                      </div>
+                      <div
+                        style={{
+                          width: "14px",
+                          height: "14px",
+                          borderRadius: "var(--radius-sm)",
+                          backgroundColor: th.darkBg,
+                          border: "1px solid var(--border-medium)",
+                        }}
+                      />
                     </button>
                   ))}
                 </div>
@@ -702,11 +666,11 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                     className="search-input"
                     style={{ width: "120px", fontFamily: "var(--font-mono)", fontSize: "12px" }}
                   />
-                  <span style={{ fontSize: "12px", color: "var(--text-muted)" }}>
-                    Live accent color for highlights, active links, and buttons
-                  </span>
                 </div>
               </div>
+
+              {/* Icon Engine: pack picker + per-folder overrides */}
+              <IconEngineEditor />
 
               {/* Typography & Comfort Sliders */}
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
@@ -772,24 +736,150 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   />
                 </div>
               </div>
-
-              {/* Icon Library Note & Primitive architecture */}
-              <div
-                style={{
-                  padding: "10px 14px",
-                  borderRadius: "var(--radius-sm)",
-                  backgroundColor: "var(--bg-tertiary)",
-                  border: "1px solid var(--border-subtle)",
-                  fontSize: "11.5px",
-                  color: "var(--text-muted)",
-                  lineHeight: 1.4,
-                }}
-              >
-                <strong style={{ color: "var(--text-secondary)" }}>Icon Engine Architecture:</strong> mdNinja uses <code>lucide-react</code> as its high-performance vector primitive. Icons are rendered via an abstracted registry mapping, enabling drop-in catalog support for Phosphor, Radix, or Heroicons without touching core navigation components.
-              </div>
             </div>
           )}
         </div>
+      </div>
+    </div>
+  );
+};
+
+/* --------------------------------------------------------------------------
+   Icon Engine Editor
+   Lets the user pick an icon pack (Lucide / Phosphor) and override the icon
+   used for each living-canon folder in the sidebar rail + file tree.
+--------------------------------------------------------------------------- */
+
+const OVERRIDABLE_FOLDERS: NavIconKey[] = [
+  "audits",
+  "changelog",
+  "decisions",
+  "diagrams",
+  "notes",
+  "research",
+  "roadmaps",
+];
+
+const NAV_ICON_KEYS: NavIconKey[] = [
+  "folder",
+  "file",
+  "audits",
+  "changelog",
+  "decisions",
+  "diagrams",
+  "notes",
+  "research",
+  "roadmaps",
+];
+
+const IconEngineEditor: React.FC = () => {
+  const [pack, setPack] = React.useState<IconPack>("lucide");
+  const [overrides, setOverrides] = React.useState<Partial<Record<NavIconKey, NavIconKey>>>({});
+
+  React.useEffect(() => {
+    setPack(loadIconPack());
+    setOverrides(loadIconOverrides());
+  }, []);
+
+  const notify = () => window.dispatchEvent(new Event("mdninja:icons-changed"));
+
+  const handlePack = (p: IconPack) => {
+    setPack(p);
+    saveIconPack(p);
+    notify();
+  };
+
+  const handleOverride = (folder: NavIconKey, icon: NavIconKey | "") => {
+    const next = { ...overrides };
+    if (icon === "") {
+      delete next[folder];
+    } else {
+      next[folder] = icon;
+    }
+    setOverrides(next);
+    saveIconOverrides(next);
+    notify();
+  };
+
+  return (
+    <div>
+      <label style={{ fontSize: "12px", fontWeight: 600, color: "var(--text-muted)" }}>
+        ICON ENGINE
+      </label>
+
+      {/* Pack picker */}
+      <div style={{ display: "flex", gap: "8px", marginTop: "8px" }}>
+        {(["lucide", "phosphor"] as IconPack[]).map((p) => {
+          const Preview = getNavIcon(p, "decisions");
+          const active = pack === p;
+          return (
+            <button
+              key={p}
+              type="button"
+              onClick={() => handlePack(p)}
+              className="action-btn"
+              style={{
+                border: active ? "2px solid var(--accent)" : "1px solid var(--border-medium)",
+                backgroundColor: active ? "var(--accent-subtle)" : "var(--bg-tertiary)",
+                color: active ? "var(--accent)" : "var(--text-secondary)",
+                padding: "8px 14px",
+                textTransform: "capitalize",
+                display: "flex",
+                alignItems: "center",
+                gap: "6px",
+              }}
+            >
+              <Preview size={14} />
+              {p}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Per-folder icon overrides */}
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(2, 1fr)",
+          gap: "8px",
+          marginTop: "12px",
+        }}
+      >
+        {OVERRIDABLE_FOLDERS.map((folder) => {
+          const resolved = overrides[folder] ?? folder;
+          const Current = getNavIcon(pack, resolved);
+          return (
+            <div
+              key={folder}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "8px",
+                padding: "6px 8px",
+                border: "1px solid var(--border-subtle)",
+                borderRadius: "var(--radius-sm)",
+                backgroundColor: "var(--bg-tertiary)",
+              }}
+            >
+              <Current size={14} />
+              <span style={{ fontSize: "12px", color: "var(--text-secondary)", flex: 1 }}>
+                {folder}
+              </span>
+              <select
+                className="search-input"
+                value={resolved}
+                onChange={(e) => handleOverride(folder, e.target.value as NavIconKey | "")}
+                style={{ padding: "4px 6px", fontSize: "11px", width: "110px" }}
+              >
+                {NAV_ICON_KEYS.map((k) => (
+                  <option key={k} value={k}>
+                    {k}
+                  </option>
+                ))}
+              </select>
+            </div>
+          );
+        })}
       </div>
     </div>
   );

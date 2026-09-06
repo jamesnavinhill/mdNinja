@@ -40,11 +40,11 @@ export default function WorkspacePage() {
   // Settings & Styling State
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [settingsTab, setSettingsTab] = useState<SettingsTab>("config");
-  const [accentColor, setAccentColor] = useState("#6366f1");
+  const [accentColor, setAccentColor] = useState("#cea1ce");
   const [fontFamily, setFontFamily] = useState("-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif");
-  const [fontSize, setFontSize] = useState(15);
+  const [fontSize, setFontSize] = useState(14);
   const [lineHeight, setLineHeight] = useState(1.65);
-  const [maxWidth, setMaxWidth] = useState(920);
+  const [maxWidth, setMaxWidth] = useState(960);
   const [activeTheme, setActiveTheme] = useState("default");
 
   // Dynamic CSS variables binding for user preferences (typography & custom accent)

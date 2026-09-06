@@ -2,14 +2,6 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import {
-  Folder,
-  ShieldCheck,
-  History,
-  GitFork,
-  Network,
-  StickyNote,
-  Compass,
-  Milestone,
   CheckSquare,
   BookOpen,
   Bot,
@@ -19,9 +11,14 @@ import {
   PanelLeftClose,
   PanelLeftOpen,
   Settings,
-  LogOut,
-  User,
 } from "lucide-react";
+import {
+  IconPack,
+  NavIconKey,
+  getFolderIcon,
+  loadIconPack,
+  loadIconOverrides,
+} from "@/lib/icons";
 
 export type RailTarget =
   | "canon"
@@ -71,15 +68,34 @@ export const IconRail: React.FC<IconRailProps> = ({
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const profileRef = useRef<HTMLDivElement>(null);
 
+  // Icon engine: active pack + per-folder overrides (persisted).
+  const [iconPack, setIconPack] = useState<IconPack>("lucide");
+  const [iconOverrides, setIconOverrides] = useState<Partial<Record<NavIconKey, NavIconKey>>>({});
+
+  useEffect(() => {
+    const refresh = () => {
+      setIconPack(loadIconPack());
+      setIconOverrides(loadIconOverrides());
+    };
+    refresh();
+    window.addEventListener("mdninja:icons-changed", refresh);
+    return () => window.removeEventListener("mdninja:icons-changed", refresh);
+  }, []);
+
+  const navIcon = (key: NavIconKey) => {
+    const Cmp = getFolderIcon(iconPack, key, iconOverrides);
+    return <Cmp size={15} />;
+  };
+
   const canonItems: RailItemDef[] = [
-    { key: "canon", label: `${canonName}/`, icon: <Folder size={15} /> },
-    { key: "audits", label: "audits", icon: <ShieldCheck size={15} /> },
-    { key: "changelog", label: "changelog", icon: <History size={15} /> },
-    { key: "decisions", label: "decisions", icon: <GitFork size={15} /> },
-    { key: "diagrams", label: "diagrams", icon: <Network size={15} /> },
-    { key: "notes", label: "notes", icon: <StickyNote size={15} /> },
-    { key: "research", label: "research", icon: <Compass size={15} /> },
-    { key: "roadmaps", label: "roadmaps", icon: <Milestone size={15} /> },
+    { key: "canon", label: `${canonName}/`, icon: navIcon("folder") },
+    { key: "audits", label: "audits", icon: navIcon("audits") },
+    { key: "changelog", label: "changelog", icon: navIcon("changelog") },
+    { key: "decisions", label: "decisions", icon: navIcon("decisions") },
+    { key: "diagrams", label: "diagrams", icon: navIcon("diagrams") },
+    { key: "notes", label: "notes", icon: navIcon("notes") },
+    { key: "research", label: "research", icon: navIcon("research") },
+    { key: "roadmaps", label: "roadmaps", icon: navIcon("roadmaps") },
     { key: "standards", label: "standards", icon: <CheckSquare size={15} /> },
   ];
 
@@ -223,21 +239,6 @@ export const IconRail: React.FC<IconRailProps> = ({
               gap: "2px",
             }}
           >
-            <div
-              style={{
-                padding: "8px 10px",
-                borderBottom: "1px solid var(--border-subtle)",
-                marginBottom: "4px",
-              }}
-            >
-              <div style={{ fontSize: "12.5px", fontWeight: 600, color: "var(--text-primary)" }}>
-                James Hill
-              </div>
-              <div style={{ fontSize: "11px", color: "var(--text-muted)" }}>
-                james@github &bull; Pro
-              </div>
-            </div>
-
             <button
               type="button"
               className="action-btn"
@@ -249,18 +250,6 @@ export const IconRail: React.FC<IconRailProps> = ({
             >
               <Settings size={14} />
               <span>Settings</span>
-            </button>
-
-            <div style={{ height: "1px", backgroundColor: "var(--border-subtle)", margin: "4px 0" }} />
-
-            <button
-              type="button"
-              className="action-btn"
-              style={{ justifyContent: "flex-start", width: "100%", padding: "6px 8px", color: "var(--danger)" }}
-              onClick={() => setIsProfileOpen(false)}
-            >
-              <LogOut size={14} />
-              <span>Sign Out</span>
             </button>
           </div>
         )}

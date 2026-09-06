@@ -1,8 +1,15 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { FileText, Folder, ChevronDown, ChevronRight } from "lucide-react";
+import { FileText, ChevronDown, ChevronRight } from "lucide-react";
 import { FileItem, RepoScanResult } from "@/lib/types";
+import {
+  IconPack,
+  NavIconKey,
+  getFolderIcon,
+  loadIconPack,
+  loadIconOverrides,
+} from "@/lib/icons";
 
 interface FileTreeProps {
   scanData: RepoScanResult | null;
@@ -10,6 +17,17 @@ interface FileTreeProps {
   onSelectFile: (path: string) => void;
   targetToFocus: string | null;
 }
+
+// Map a folder's name to a semantic nav key (so folder icons follow the registry/overrides).
+const FOLDER_KEY_MAP: Record<string, NavIconKey> = {
+  audits: "audits",
+  changelog: "changelog",
+  decisions: "decisions",
+  diagrams: "diagrams",
+  notes: "notes",
+  research: "research",
+  roadmaps: "roadmaps",
+};
 
 export const FileTree: React.FC<FileTreeProps> = ({
   scanData,
@@ -19,6 +37,25 @@ export const FileTree: React.FC<FileTreeProps> = ({
 }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>({});
+
+  // Icon engine: pack + overrides loaded once.
+  const [iconPack, setIconPack] = useState<IconPack>("lucide");
+  const [iconOverrides, setIconOverrides] = useState<Partial<Record<NavIconKey, NavIconKey>>>({});
+  useEffect(() => {
+    const refresh = () => {
+      setIconPack(loadIconPack());
+      setIconOverrides(loadIconOverrides());
+    };
+    refresh();
+    window.addEventListener("mdninja:icons-changed", refresh);
+    return () => window.removeEventListener("mdninja:icons-changed", refresh);
+  }, []);
+
+  const folderIconFor = (name: string) => {
+    const key = FOLDER_KEY_MAP[name] ?? "folder";
+    const Cmp = getFolderIcon(iconPack, key, iconOverrides);
+    return <Cmp size={12} color="var(--accent)" />;
+  };
 
   // When an icon in the rail is clicked, ensure that folder is expanded and scroll to it
   useEffect(() => {
@@ -76,11 +113,34 @@ export const FileTree: React.FC<FileTreeProps> = ({
     return false;
   };
 
+  // During an active search, collect every directory that contains a match,
+  // so we can force it (and its ancestors) open and surface the matched file.
+  const forceOpen = new Set<string>();
+  if (searchQuery) {
+    const q = searchQuery.toLowerCase();
+    const collect = (item: FileItem, ancestors: string[]): boolean => {
+      const selfMatch = item.name.toLowerCase().includes(q);
+      let childMatch = false;
+      if (item.children) {
+        for (const child of item.children) {
+          if (collect(child, [...ancestors, item.relativePath])) childMatch = true;
+        }
+      }
+      if (!item.isDirectory) return selfMatch;
+      if (selfMatch || childMatch) {
+        ancestors.forEach((a) => forceOpen.add(a));
+        return true;
+      }
+      return false;
+    };
+    [...canonList, ...docs, ...agents, ...rootFiles].forEach((it) => collect(it, []));
+  }
+
   const renderItem = (item: FileItem, depth = 0) => {
     if (!matchesSearch(item)) return null;
 
     if (item.isDirectory && item.children) {
-      const isCollapsed = collapsedSections[item.relativePath];
+      const isCollapsed = !!collapsedSections[item.relativePath] && !forceOpen.has(item.relativePath);
       // Target id for rail navigation (e.g. nav-decisions, nav-roadmaps)
       const folderKey = item.name;
 
@@ -92,7 +152,7 @@ export const FileTree: React.FC<FileTreeProps> = ({
             onClick={() => toggleSection(item.relativePath)}
           >
             {isCollapsed ? <ChevronRight size={12} /> : <ChevronDown size={12} />}
-            <Folder size={12} color="var(--accent)" />
+            {folderIconFor(item.name)}
             <span>{item.name}</span>
           </div>
           {!isCollapsed && item.children.map((child) => renderItem(child, depth + 1))}
@@ -118,6 +178,12 @@ export const FileTree: React.FC<FileTreeProps> = ({
     );
   };
 
+  // A section is force-open during search if any of its descendants match.
+  const sectionOpen = (sectionKey: string, items: FileItem[]): boolean => {
+    if (!searchQuery) return !collapsedSections[sectionKey];
+    return items.some(matchesSearch) ? true : !collapsedSections[sectionKey];
+  };
+
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
       <div className="sidebar-search">
@@ -138,10 +204,10 @@ export const FileTree: React.FC<FileTreeProps> = ({
               className="tree-section-title"
               onClick={() => toggleSection(canonKey)}
             >
-              {collapsedSections[canonKey] ? <ChevronRight size={12} /> : <ChevronDown size={12} />}
+              {!sectionOpen(canonKey, canonList) ? <ChevronRight size={12} /> : <ChevronDown size={12} />}
               <span>{canonKey}</span>
             </div>
-            {!collapsedSections[canonKey] &&
+            {sectionOpen(canonKey, canonList) &&
               canonList.map((item) => renderItem(item, 0))}
           </div>
         )}
@@ -153,10 +219,10 @@ export const FileTree: React.FC<FileTreeProps> = ({
               className="tree-section-title"
               onClick={() => toggleSection("docs")}
             >
-              {collapsedSections["docs"] ? <ChevronRight size={12} /> : <ChevronDown size={12} />}
+              {!sectionOpen("docs", docs) ? <ChevronRight size={12} /> : <ChevronDown size={12} />}
               <span>docs</span>
             </div>
-            {!collapsedSections["docs"] &&
+            {sectionOpen("docs", docs) &&
               docs.map((item) => renderItem(item, 0))}
           </div>
         )}
@@ -168,10 +234,10 @@ export const FileTree: React.FC<FileTreeProps> = ({
               className="tree-section-title"
               onClick={() => toggleSection(".agents")}
             >
-              {collapsedSections[".agents"] ? <ChevronRight size={12} /> : <ChevronDown size={12} />}
+              {!sectionOpen(".agents", agents) ? <ChevronRight size={12} /> : <ChevronDown size={12} />}
               <span>.agents</span>
             </div>
-            {!collapsedSections[".agents"] &&
+            {sectionOpen(".agents", agents) &&
               agents.map((item) => renderItem(item, 0))}
           </div>
         )}
@@ -183,10 +249,10 @@ export const FileTree: React.FC<FileTreeProps> = ({
               className="tree-section-title"
               onClick={() => toggleSection("root")}
             >
-              {collapsedSections["root"] ? <ChevronRight size={12} /> : <ChevronDown size={12} />}
+              {!sectionOpen("root", rootFiles) ? <ChevronRight size={12} /> : <ChevronDown size={12} />}
               <span>{scanData.rootName || "mdninja"}</span>
             </div>
-            {!collapsedSections["root"] &&
+            {sectionOpen("root", rootFiles) &&
               rootFiles.map((item) => renderItem(item, 0))}
           </div>
         )}
