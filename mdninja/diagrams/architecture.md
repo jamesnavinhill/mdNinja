@@ -83,3 +83,33 @@ sequenceDiagram
     User->>Storage: Persist account in visitor's private localStorage
     User->>GitHub: Client fetches repos directly: api.github.com/user/repos
 ```
+
+---
+
+## Multi-Surface Distribution & MCP Architecture
+
+```mermaid
+graph LR
+    subgraph Clients ["Client Interfaces"]
+        Browser["Web Browser (https://mdninja.navinhill.com)"]
+        Tauri["Desktop App (Tauri 2.0 / OS Webview)"]
+        AIAgents["AI Assistants (Cursor, Claude, Windsurf, Antigravity)"]
+    end
+
+    subgraph Entrypoints ["mdNinja Entrypoints"]
+        WebPlatform["Next.js Web / Serverless API"]
+        CLIRunner["@mdninja/cli (npx mdninja)"]
+        MCPServer["Stdio MCP Server (ADR 0007)"]
+    end
+
+    subgraph LivingCanon ["Living Canon Core"]
+        CanonStore["Local Git Repository (mdninja/, docs/, .agents/)"]
+    end
+
+    Browser --> WebPlatform
+    Tauri --> WebPlatform
+    CLIRunner --> WebPlatform
+    AIAgents -->|"stdio (JSON-RPC 2.0)"| MCPServer
+    WebPlatform --> CanonStore
+    MCPServer --> CanonStore
+```

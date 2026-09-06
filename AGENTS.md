@@ -17,4 +17,5 @@ This document defines operational rules, personas, and behavioral constraints fo
 ## 3. Agent Rules of Engagement
 * **DO:** Check off completed tasks in `mdninja/roadmaps/roadmap.md` with `[x]` after verifying implementation.
 * **DO:** Include the `🤖 Agent Enforcement` section in every new ADR.
+* **DO:** Use the native Model Context Protocol (MCP) server (`mdninja mcp`) or tools for path-safe living canon reads, edits, and ADR scaffolding.
 * **DO NOT:** Commit `.next/` or build artifacts to Git.

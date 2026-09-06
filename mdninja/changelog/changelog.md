@@ -35,10 +35,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 * **Curated Design System & Theme Engine:**
   * Universal theme support across both Dark and Light modes: Default mdNinja, Tokyo Night, Nord Frost, GitHub Dimmed, and Paper Sepia.
   * Live typographic controls: font family, font size, line height, and maximum reading width.
+* **Standalone CLI Runner (`@mdninja/cli`):**
+  * Executable binary `npx @mdninja/cli` supporting `dev`, `init`, `mcp`, and `build` commands.
+  * One-command canonical directory scaffolding (`mdninja init`).
+* **Model Context Protocol (MCP) Stdio Server:**
+  * Native stdio MCP server for AI coding assistants (Cursor, Claude Desktop, Windsurf, Antigravity).
+  * 7 core living canon tools: `get_canon_structure`, `read_canon_doc`, `write_canon_doc`, `list_adrs`, `create_adr`, `get_roadmap`, `update_roadmap_task` (ADR 0007).
+* **Tauri 2.0 Native Desktop Shell:**
+  * Sub-20MB installer and <30MB baseline RAM footprint housing the shared Next.js web application.
+  * Cross-platform OS webview integration (WebView2 / WebKit) with zero Electron bloat (ADR 0008).
+  * High-resolution native shuriken/markdown icons across all desktop formats.
 * **Vercel Production Deployment & Analytics:**
   * Native `@vercel/analytics` integration.
-  * Resolved 4 security advisories in upstream dependencies (`postcss@8.5.28`).
-  * Production deployment configured for `https://mdninja.navinhill.com`.
+  * Resolved all security advisories in upstream dependencies (`npm audit` -> 0 vulnerabilities).
+  * Production deployment active on `https://mdninja.navinhill.com`.
 
 ---
 

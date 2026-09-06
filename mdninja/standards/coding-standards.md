@@ -36,8 +36,8 @@ This document codifies the core engineering principles, design standards, and op
 ## 4. Monorepo Hygiene & Dependency Boundaries
 
 * **Clear Workspace Separation:**
-  * `apps/web`: Next.js 15 App Router visual frontend and serverless API handlers.
-  * `packages/cli`: Standalone CLI launcher for local execution (`npx mdninja`).
+  * `apps/web`: Next.js 15 App Router visual frontend, serverless API handlers, and `src-tauri` native desktop shell (Tauri 2.0).
+  * `packages/cli`: Standalone CLI launcher (`npx @mdninja/cli`) and stdio Model Context Protocol (MCP) server.
   * `mdninja/`: First-class living canon directory containing active engineering context.
   * `.mdninja/`: Hidden configuration root (`config.json`).
 * **Vulnerability Zero-Tolerance:** All dependencies must pass `npm audit` with 0 vulnerabilities. Use workspace overrides in root `package.json` when upstream patches require explicit pinning.

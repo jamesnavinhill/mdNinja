@@ -1,14 +1,16 @@
 # mdNinja 🥷
 
-> **The Zero-Constraint Living Canon & Visual Markdown Workbench for Engineering Teams.**
+> **The Zero-Constraint Living Canon Workbench & Model Context Protocol (MCP) Server for Engineering Teams and AI Agents.**
 
 [![Next.js](https://img.shields.io/badge/Next.js-15.5-black?style=flat-square&logo=next.js)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.7-blue?style=flat-square&logo=typescript)](https://www.typescriptlang.org/)
-[![Vulnerabilities](https://img.shields.io/badge/Vulnerabilities-0-brightgreen?style=flat-square)](https://github.com/jamesnavinhill/mdninja)
+[![Tauri 2.0](https://img.shields.io/badge/Tauri-2.0-orange?style=flat-square&logo=tauri)](https://tauri.app/)
+[![MCP](https://img.shields.io/badge/MCP-Protocol-purple?style=flat-square)](https://modelcontextprotocol.io)
+[![Vulnerabilities](https://img.shields.io/badge/Vulnerabilities-0-brightgreen?style=flat-square)](https://github.com/jamesnavinhill/mdNinja)
 [![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)](LICENSE)
 [![Live Demo](https://img.shields.io/badge/Live_Demo-mdninja.navinhill.com-indigo?style=flat-square)](https://mdninja.navinhill.com)
 
-**mdNinja** connects your engineering repository's Markdown documents—architecture blueprints, living roadmaps, ADRs, interactive diagrams, and AI agent instructions—into an uncluttered, high-performance visual workbench with **zero database silos**.
+**mdNinja** connects your engineering repository's Markdown documents—architecture blueprints, living roadmaps, ADRs, interactive diagrams, and AI agent memory—into an uncluttered, high-performance visual workbench and standardized MCP interface with **zero database silos**.
 
 Explore the public live demo: **[mdninja.navinhill.com](https://mdninja.navinhill.com)**
 
@@ -17,42 +19,61 @@ Explore the public live demo: **[mdninja.navinhill.com](https://mdninja.navinhil
 ## ⚡ Highlights
 
 * **Zero-Constraint Equal Split Workspace:** Dual equal panels (`Cmd + \`) powered by `react-resizable-panels`. No artificial "primary vs context" restrictions—both panels have 100% identical capabilities.
+* **Native Model Context Protocol (MCP) Server:** Out-of-the-box stdio integration for Cursor, Claude Desktop, Windsurf, and Google Antigravity to navigate, read, write, and index the Living Canon.
+* **Native Desktop Shell (Tauri 2.0):** Sub-20MB installer and <30MB baseline RAM footprint—eliminating Electron's heavy resource penalties.
 * **LaTeX Formula Typography:** Synchronous, zero-layout-shift mathematical rendering via KaTeX (`$math$` and `$$math$$`).
-* **Unconstrained Vector Diagrams:** Interactive Mermaid.js code blocks converted into 60fps pan/zoom vectors with flip-to-edit toggle. Standalone diagrams expand to 100% of panel height.
+* **Unconstrained Vector Diagrams:** Interactive Mermaid.js code blocks converted into 60fps pan/zoom vectors with flip-to-edit toggle and dynamic dark/light theme reactivity.
 * **Direct Local Filesystem I/O:** Edits write directly to disk (`fs.writeFile`) with zero lag. Your Git repository remains the single source of truth.
 * **Native Living Canon Discovery:** Automatically scans and organizes `mdninja/` (ADRs, roadmaps, diagrams, audits), `docs/`, `.agents/`, and root Markdown files.
-* **Zero-Leak Multi-User Isolation:** Ephemeral OAuth token exchange with strict browser-local `localStorage` persistence. Zero tokens or user repositories are ever stored on the server.
-* **Universal Themes:** Curated themes (Default, Tokyo Night, Nord Frost, GitHub Dimmed, Paper Sepia) that adapt seamlessly across both Dark and Light modes.
+* **Zero-Leak Multi-User Isolation:** Ephemeral OAuth token exchange with strict browser-local `localStorage` persistence. Zero tokens or user repositories are ever stored on the server ([ADR 0004](mdninja/decisions/0004-zero-leak-multi-user-isolation.md)).
 
 ---
 
 ## 🚀 Quick Start
 
-### 1. Run Locally
+### 1. Instant CLI Runner (Zero-Install)
+Run mdNinja in any repository or directory using `npx`:
 
 ```bash
-# Clone the repository
-git clone https://github.com/jamesnavinhill/mdninja.git
-cd mdninja
+# Launch the visual living canon workbench
+npx @mdninja/cli
 
-# Install dependencies
+# Scaffold standard .mdninja configuration and canonical folders
+npx @mdninja/cli init
+```
+
+### 2. Connect Your AI Assistant (MCP)
+Add mdNinja to your AI coding assistant (Cursor, Claude Desktop, Windsurf) via stdio:
+
+```json
+{
+  "mcpServers": {
+    "mdninja": {
+      "command": "npx",
+      "args": ["-y", "@mdninja/cli", "mcp"]
+    }
+  }
+}
+```
+
+### 3. Native Desktop App (Tauri 2.0)
+Build and run the native desktop shell:
+
+```bash
+cd apps/web
+npm run tauri dev
+```
+
+### 4. Run Monorepo Locally
+
+```bash
+git clone https://github.com/jamesnavinhill/mdNinja.git
+cd mdNinja
 npm install
-
-# Start local workbench
 npm run dev
 ```
 
 Visit `http://localhost:3000` in your browser.
-
-### 2. Self-Host on Vercel
-
-1. Fork or push this repository to GitHub.
-2. Import into Vercel with **Root Directory:** `apps/web`.
-3. Set your environment variables:
-   * `NEXT_PUBLIC_APP_URL=https://mdninja.yourdomain.com`
-   * `GITHUB_CLIENT_ID=your_github_client_id`
-   * `GITHUB_CLIENT_SECRET=your_github_client_secret`
-4. Deploy!
 
 ---
 
@@ -80,6 +101,17 @@ Visit `http://localhost:3000` in your browser.
 
 ---
 
+## 🛠️ CLI Commands (`@mdninja/cli`)
+
+| Command | Description |
+| :--- | :--- |
+| `mdninja dev [options]` | Start the local visual workbench (default command). Options: `-p, --port <port>`, `--no-open`, `-d, --dir <path>`. |
+| `mdninja init [options]` | Scaffold `.mdninja/config.json` and canonical directories (`mdninja/`). Options: `-f, --force`, `-d, --dir <path>`. |
+| `mdninja mcp` | Launch the Model Context Protocol (MCP) server over `stdio` for AI assistants. |
+| `mdninja build` | Sync living canon documents and generate production bundle. |
+
+---
+
 ## ⌨️ Keyboard Shortcuts
 
 | Shortcut | Action |
@@ -100,6 +132,17 @@ When deployed as a public demo or shared instance, `mdNinja` guarantees that no 
 3. Zero tokens or private repositories are stored in server memory, cache, or database.
 
 See [ADR 0004](mdninja/decisions/0004-zero-leak-multi-user-isolation.md) for full architectural details.
+
+---
+
+## 📄 Documentation Links
+
+* [Getting Started Guide](docs/getting-started.md)
+* [Architecture Overview](docs/architecture-overview.md)
+* [Configuration Guide](docs/configuration-guide.md)
+* [Living Roadmap](mdninja/roadmaps/roadmap.md)
+* [Cloud Hosting & Custom Domains Roadmap](mdninja/roadmaps/cloud-and-custom-domains-roadmap.md)
+* [Architecture Decision Records (ADRs)](mdninja/decisions/0001-monorepo-structure.md)
 
 ---
 
