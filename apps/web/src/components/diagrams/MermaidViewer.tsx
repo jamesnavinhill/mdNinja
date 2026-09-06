@@ -51,7 +51,11 @@ export const MermaidViewer: React.FC<MermaidViewerProps> = ({
           fontFamily: "var(--font-sans)",
         });
 
-        const { svg } = await mermaid.render(uniqueId.current, rawText);
+        const renderId = `m${Math.random().toString(36).substring(2, 8)}${Date.now().toString(36)}`;
+        const existing = document.getElementById(renderId) || document.getElementById(`d${renderId}`);
+        if (existing) existing.remove();
+
+        const { svg } = await mermaid.render(renderId, rawText);
         if (isMounted) {
           setSvgContent(svg);
         }

@@ -9,6 +9,7 @@
   "scripts": {
     "dev": "npm run dev --workspace=@projectmd/web",
     "build": "npm run build --workspace=@projectmd/web",
+    "sync-canon": "npm run sync-canon --workspace=@projectmd/web",
     "start": "npm run start --workspace=@projectmd/web",
     "lint": "npm run lint --workspace=@projectmd/web"
   },

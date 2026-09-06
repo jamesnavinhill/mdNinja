@@ -3,6 +3,8 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
+    "prebuild": "node scripts/sync-canon.mjs",
+    "sync-canon": "node scripts/sync-canon.mjs",
     "dev": "next dev --port 3000",
     "build": "next build",
     "start": "next start --port 3000",

@@ -8,15 +8,19 @@ gantt
     dateFormat  YYYY-MM-DD
     section Phase 1: Core Shell
     Monorepo & Workspaces Setup      :done,    m1, 2026-09-01, 2d
-    Equal-Panel Layout Engine        :active,  m2, 2026-09-03, 3d
-    Icon Rail & File Tree Scanner    :         m3, after m2, 3d
+    Equal-Panel Layout Engine        :done,    m2, 2026-09-03, 2d
+    Icon Rail & File Tree Scanner    :done,    m3, 2026-09-04, 2d
     section Phase 2: Render & Edit
-    KaTeX Math & Markdown AST        :         m4, after m3, 4d
-    Mermaid & Pan/Zoom Viewport      :         m5, after m4, 4d
-    Inline Block Editor              :         m6, after m5, 4d
+    KaTeX Math & Markdown AST        :done,    m4, 2026-09-04, 2d
+    Mermaid & Pan/Zoom Viewport      :done,    m5, 2026-09-05, 2d
+    Inline Block Editor              :done,    m6, 2026-09-05, 1d
     section Phase 3: Hub & Polish
-    CLI Launcher (@projectmd/cli)    :         m7, after m6, 3d
-    Multi-Repo GitHub OAuth          :         m8, after m7, 5d
+    Universal Theme Engine           :done,    m7, 2026-09-05, 1d
+    Multi-Repo GitHub OAuth          :done,    m8, 2026-09-06, 2d
+    CLI Launcher (@projectmd/cli)    :active,  m9, 2026-09-06, 2d
+    section Phase 4: Self-Host & Distribution
+    Docker One-Click Container       :m11, after m9, 3d
+    Billing & Pro Team Workspaces    :m12, after m11, 5d
 ```
 
 ## 📋 Task Execution State
@@ -32,13 +36,20 @@ gantt
 - [x] Integrate Mermaid.js with `react-zoom-pan-pinch` and flip-to-edit toggle.
 - [x] Build inline block editor and local disk write API (`/api/content`).
 
-### Phase 3: Distribution & CLI
-- [ ] Implement `@projectmd/cli` runner script.
-- [x] Validate dark/light themes and keyboard shortcuts (`Cmd+\`, `Cmd+B`, `Cmd+S`).
+### Phase 3: Distribution & Multi-Repo
+- [x] Universal dark & light themes (Default, Tokyo Night, Nord Frost, GitHub Dimmed, Paper Sepia).
 - [x] Multi-Repo GitHub OAuth integration and client-isolated account manager.
+- [ ] Complete standalone `@projectmd/cli` executable runner (`npx mdninja`).
+
+### Phase 4: Public Deployment & Self-Hosting
+- [x] Public live deployment on `https://mdninja.navinhill.com` via Vercel with `@vercel/analytics`.
+- [x] Fix 100% of upstream security advisories (`npm audit` -> 0 vulnerabilities).
+- [x] Bundled canon fallback for zero-latency serverless rendering.
+- [ ] One-click Docker container recipe for private air-gapped deployments.
+- [ ] Optional team billing & organization workspace tiers.
 
 ---
 
 ## 🤖 Agent Context
-* **Current Focus:** Scaffold core Next.js 15 UI, design tokens, and AST rendering pipeline.
-* **Definition of Done:** All tasks marked `[x]` must compile cleanly without TypeScript errors and render successfully in the browser.
+* **Current Focus:** Provide seamless self-hosting and public live demo viewing of the real repository canon with zero mock data.
+* **Definition of Done:** All tasks marked `[x]` must compile cleanly without TypeScript errors and render successfully in production.

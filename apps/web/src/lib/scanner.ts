@@ -1,6 +1,7 @@
 import fs from "fs/promises";
 import path from "path";
 import { FileItem, RepoScanResult } from "./types";
+import canonData from "./canon-data.json";
 
 export * from "./types";
 
@@ -117,11 +118,17 @@ export async function scanRepository(): Promise<RepoScanResult> {
     //
   }
 
-  return {
-    rootName,
-    projectmd,
-    docs,
-    agents,
-    rootFiles,
-  };
+  // If disk has files, use live filesystem
+  if (projectmd.length > 0 || docs.length > 0 || rootFiles.length > 0) {
+    return {
+      rootName,
+      projectmd,
+      docs,
+      agents,
+      rootFiles,
+    };
+  }
+
+  // Fallback to build-time bundled canon (for serverless environments like Vercel)
+  return canonData.scanResult as RepoScanResult;
 }

@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { Eye, Code, Save, Columns, X, Check, Loader2 } from "lucide-react";
 import { BlockEditor } from "../editor/BlockEditor";
+import canonData from "@/lib/canon-data.json";
 
 interface PanelProps {
   panelId: "panel1" | "panel2";
@@ -23,11 +24,12 @@ export const Panel: React.FC<PanelProps> = ({
   isActive,
   onFocus,
 }) => {
-  const [content, setContent] = useState<string>("");
-  const [originalContent, setOriginalContent] = useState<string>("");
+  const fallback = filePath ? (canonData.contents as Record<string, string>)[filePath] || "" : "";
+  const [content, setContent] = useState<string>(fallback);
+  const [originalContent, setOriginalContent] = useState<string>(fallback);
   const [isEditMode, setIsEditMode] = useState<boolean>(false);
   const [saveStatus, setSaveStatus] = useState<"saved" | "unsaved" | "saving">("saved");
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(!fallback && !!filePath);
   const [error, setError] = useState<string | null>(null);
 
   // Load file content whenever filePath changes
@@ -38,8 +40,16 @@ export const Panel: React.FC<PanelProps> = ({
       return;
     }
 
+    const initial = (canonData.contents as Record<string, string>)[filePath];
+    if (initial !== undefined) {
+      setContent(initial);
+      setOriginalContent(initial);
+    }
+
     let isMounted = true;
-    setIsLoading(true);
+    if (!initial) {
+      setIsLoading(true);
+    }
     setError(null);
 
     fetch(`/api/content?path=${encodeURIComponent(filePath)}`)

@@ -7,9 +7,12 @@ import { ProjectPicker } from "@/components/sidebar/ProjectPicker";
 import { SplitWorkspace } from "@/components/workspace/SplitWorkspace";
 import { SettingsModal, SettingsTab } from "@/components/modals/SettingsModal";
 import { RepoScanResult, getFirstDocInDirectory } from "@/lib/types";
+import canonData from "@/lib/canon-data.json";
 
 export default function WorkspacePage() {
-  const [scanData, setScanData] = useState<RepoScanResult | null>(null);
+  const [scanData, setScanData] = useState<RepoScanResult | null>(
+    (canonData.scanResult as RepoScanResult) || null
+  );
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [theme, setTheme] = useState<"dark" | "light">("dark");
   const [activeTarget, setActiveTarget] = useState<RailTarget | null>("roadmaps");
