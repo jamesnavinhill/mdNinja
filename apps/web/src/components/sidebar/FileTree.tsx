@@ -29,7 +29,7 @@ export const FileTree: React.FC<FileTreeProps> = ({
     // Expand parent section and target folder
     setCollapsedSections((prev) => {
       const next = { ...prev };
-      if (targetToFocus === "canon" || targetToFocus === "mdninja" || targetToFocus === "projectmd") {
+      if (targetToFocus === "canon" || targetToFocus === "mdninja") {
         next[canonKey] = false;
       } else if (targetToFocus === "docs") {
         next["docs"] = false;
@@ -64,7 +64,7 @@ export const FileTree: React.FC<FileTreeProps> = ({
   }
 
   const canonKey = scanData.canonName || "mdninja";
-  const canonList = scanData.canon || scanData.projectmd || [];
+  const canonList = scanData.canon || [];
   const { docs, agents, rootFiles } = scanData;
 
   const matchesSearch = (item: FileItem): boolean => {

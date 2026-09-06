@@ -8,9 +8,8 @@ export interface FileItem {
 
 export interface RepoScanResult {
   rootName: string;
-  canonName?: string;
-  canon?: FileItem[];
-  projectmd: FileItem[];
+  canonName: string;
+  canon: FileItem[];
   docs: FileItem[];
   agents: FileItem[];
   rootFiles: FileItem[];
@@ -33,12 +32,12 @@ export function getFirstDocInDirectory(target: string, scanData: RepoScanResult 
     return null;
   }
 
-  const canonItems = scanData.canon || scanData.projectmd || [];
+  const canonItems = scanData.canon || [];
 
   if (target === "docs") return findFirstFile(scanData.docs);
   if (target === "agents") return findFirstFile(scanData.agents);
   if (target === "root") return findFirstFile(scanData.rootFiles);
-  if (target === "canon" || target === "mdninja" || target === "projectmd") return findFirstFile(canonItems);
+  if (target === "canon" || target === "mdninja") return findFirstFile(canonItems);
 
   // Inside canon, find directory matching the target name (e.g. roadmaps, decisions, diagrams)
   const matchedDir = canonItems.find(

@@ -10,12 +10,7 @@ async function findRoot() {
   for (let i = 0; i < 5; i++) {
     try {
       const entries = await fs.readdir(cur);
-      if (
-        entries.includes(".mdninja") ||
-        entries.includes("mdninja") ||
-        entries.includes(".projectmd") ||
-        entries.includes("projectmd")
-      ) {
+      if (entries.includes(".mdninja") || entries.includes("mdninja")) {
         return cur;
       }
       if (entries.includes("package.json") && entries.includes("apps") && entries.includes("packages")) {
@@ -97,19 +92,13 @@ async function collectAllFiles(items, baseDir, contentMap) {
 }
 
 async function loadConfig(root) {
-  const configLocations = [
-    path.join(root, ".mdninja", "config.json"),
-    path.join(root, ".projectmd", "config.json"),
-  ];
-  for (const loc of configLocations) {
-    try {
-      const data = await fs.readFile(loc, "utf8");
-      return JSON.parse(data);
-    } catch {
-      //
-    }
+  const configLocation = path.join(root, ".mdninja", "config.json");
+  try {
+    const data = await fs.readFile(configLocation, "utf8");
+    return JSON.parse(data);
+  } catch {
+    return null;
   }
-  return null;
 }
 
 async function main() {
@@ -119,19 +108,8 @@ async function main() {
   const config = await loadConfig(root);
   const configuredCanon = config?.canon ? config.canon.replace(/^\.\//, "") : null;
 
-  // Determine canon directory name (check config -> mdninja -> projectmd)
-  let canonDirName = "mdninja";
-  if (configuredCanon) {
-    canonDirName = configuredCanon;
-  } else {
-    try {
-      const entries = await fs.readdir(root);
-      if (entries.includes("mdninja")) canonDirName = "mdninja";
-      else if (entries.includes("projectmd")) canonDirName = "projectmd";
-    } catch {
-      //
-    }
-  }
+  // Determine canon directory name (check config or default to mdninja)
+  const canonDirName = configuredCanon || "mdninja";
 
   const canon = await scanDirectory(root, canonDirName);
   let docs = await scanDirectory(root, "docs");
@@ -163,7 +141,6 @@ async function main() {
     rootName,
     canonName: canonDirName,
     canon,
-    projectmd: canon, // Backwards-compatible alias
     docs,
     agents,
     rootFiles,

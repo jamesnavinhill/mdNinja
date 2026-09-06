@@ -3,13 +3,19 @@
   "version": "1.0.0",
   "description": "CLI launcher for mdNinja - the zero-constraint visual living canon workbench",
   "bin": {
-    "mdninja": "./bin/mdninja.js",
-    "projectmd": "./bin/projectmd.js"
+    "mdninja": "./bin/mdninja.js"
   },
   "scripts": {
     "build": "echo 'CLI ready'"
   },
-  "keywords": ["markdown", "living-canon", "agents", "adr", "roadmap", "diagrams", "mdninja"],
-  "author": "",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.6.1",
+    "commander": "^13.1.0",
+    "open": "^10.1.0",
+    "picocolors": "^1.1.1",
+    "sirv": "^3.0.0"
+  },
+  "keywords": ["markdown", "living-canon", "agents", "adr", "roadmap", "diagrams", "mdninja", "mcp"],
+  "author": "James Hill <jamesnavinhill18@gmail.com>",
   "license": "MIT"
 }

@@ -12,7 +12,7 @@ In a hosted environment, multiple anonymous visitors browse the open-source repo
 Traditional multi-tenant web applications store user accounts, OAuth refresh tokens, and session states in a centralized server-side database (e.g., PostgreSQL, Redis). However, for a documentation lens and visual workbench:
 1. Storing third-party GitHub tokens with `repo` scope on a server creates an enormous security liability and compliance burden.
 2. Any bug in multi-tenant session isolation could accidentally leak one user's private code or tokens to another visitor.
-3. Requiring an external database contradicts the foundational philosophy of `projectmd`: **"No database silos—the filesystem and Git *are* the database."**
+3. Requiring an external database contradicts the foundational philosophy of `mdNinja`: **"No database silos—the filesystem and Git *are* the database."**
 
 ## 2. Decision
 

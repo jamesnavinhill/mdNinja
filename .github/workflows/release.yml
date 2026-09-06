@@ -1,0 +1,61 @@
+name: Release & Publish
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  packages: write
+  id-token: write
+
+jobs:
+  build-and-publish:
+    name: Build, Test & Publish to NPM
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: 'https://registry.npmjs.org'
+          scope: '@mdninja'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Sync Living Canon
+        run: npm run sync-canon
+
+      - name: Run Build & Verification
+        run: npm run build
+
+      - name: Verify CLI Executable
+        run: |
+          node packages/cli/bin/mdninja.js --help
+          node packages/cli/bin/mdninja.js --version
+
+      - name: Publish @mdninja/cli to NPM
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          cd packages/cli
+          npm publish --access public --provenance
+        continue-on-error: false
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          name: Release ${{ github.ref_name }}
+          draft: false
+          prerelease: false
+          generate_release_notes: true

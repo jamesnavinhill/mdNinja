@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to **mdNinja / projectmd** will be documented in this file.
+All notable changes to **mdNinja** will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
@@ -26,7 +26,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
   * Strict browser-isolated credential storage in `localStorage` (`mdninja_gh_accounts`, `mdninja_repos`).
   * Direct client-side fetching of repositories from GitHub REST API—zero server-side token storage or multi-tenant data leakage.
 * **Living Canon Scanner & Navigation:**
-  * Automated repository discovery for `projectmd/`, `docs/`, `.agents/`, and root Markdown documents.
+  * Automated repository discovery for `mdninja/`, `docs/`, `.agents/`, and root Markdown documents.
   * Collapsible icon rail with category routing and active file tracking.
   * Natural directory hierarchy without artificial tags or noisy wrappers.
 * **Direct Local Filesystem I/O:**
@@ -47,4 +47,4 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ### Added
 * Monorepo foundation using npm workspaces (`apps/web`, `packages/cli`).
 * Standardized ADR template and living canon directives (`AGENTS.md`).
-* Specification and requirements outline (`projectmd_outline.md`).
+* Specification and requirements outline (`mdninja_outline.md`).

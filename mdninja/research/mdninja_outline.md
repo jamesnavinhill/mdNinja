@@ -1,4 +1,4 @@
-# projectmd — Product Specification & Architecture
+# mdNinja — Product Specification & Architecture
 
 **Version:** 1.0.0  
 **Status:** Approved Architecture  
@@ -9,7 +9,7 @@
 
 ## 1. Executive Summary & Vision
 
-**projectmd** is a high-fidelity, zero-constraint visual Markdown workbench and lens. It is built as a **"dumb app that reads and writes"**—fast, elegant, and completely unburdened by proprietary databases, vector queues, or complex AI daemon runtimes.
+**mdNinja** is a high-fidelity, zero-constraint visual Markdown workbench and lens. It is built as a **"dumb app that reads and writes"**—fast, elegant, and completely unburdened by proprietary databases, vector queues, or complex AI daemon runtimes.
 
 Modern development repositories are filled with Markdown:
 
@@ -17,7 +17,7 @@ Modern development repositories are filled with Markdown:
 - AI agent instructions, tool skills, and working memory (`.agents/`, `AGENTS.md`, `memory.md`)
 - Technical specs with math formulas and system diagrams (`diagrams/`, LaTeX equations)
 
-**projectmd** provides an uncluttered, high-performance visual interface to view, edit, cross-reference, and diagram these files without imposing artificial workflows or file silos. The repository and the filesystem remain the sole source of truth.
+**mdNinja** provides an uncluttered, high-performance visual interface to view, edit, cross-reference, and diagram these files without imposing artificial workflows or file silos. The repository and the filesystem remain the sole source of truth.
 
 ---
 
@@ -25,8 +25,8 @@ Modern development repositories are filled with Markdown:
 
 1. **"A Dumb App That Reads and Writes"**
    - No black-box AI runtime, no vector databases, no background sync daemons.
-   - If a Markdown file exists on disk, `projectmd` renders it. If you edit it, `projectmd` writes it back.
-   - Agent memory is not a SaaS feature; it is simply a Markdown document (`memory.md`, `activeContext.md`) that `projectmd` renders, organizes, and edits with superior visual clarity.
+   - If a Markdown file exists on disk, `mdNinja` renders it. If you edit it, `mdNinja` writes it back.
+   - Agent memory is not a SaaS feature; it is simply a Markdown document (`memory.md`, `activeContext.md`) that `mdNinja` renders, organizes, and edits with superior visual clarity.
 
 2. **Zero Constraints — Never Artificially Limit the User**
    - No forced distinctions between "primary content" and "subordinate context."
@@ -54,13 +54,13 @@ Modern development repositories are filled with Markdown:
 
 | Architectural Area              | User Decision & Requirement                                                                                                        | Technical Implementation                                                                                                                                      |
 | :------------------------------ | :--------------------------------------------------------------------------------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| **Product Identity**            | Named **`projectmd`** (clean, direct, unpretentious).                                                                              | Package names: `@projectmd/cli`, `@projectmd/core`.                                                                                                           |
+| **Product Identity**            | Named **`mdNinja`** (clean, direct, unpretentious).                                                                                | Package names: `@mdninja/cli`, `@mdninja/web`.                                                                                                                |
 | **Split-Panel Layout**          | **Two Equal Panels.** No "main vs context" constraint. One open by default; second toggled on demand.                              | Built on [`react-resizable-panels`](https://github.com/bvaughn/react-resizable-panels). Both panes have identical capabilities (render, edit, flip diagrams). |
 | **Chrome & Canvas**             | **No Header Row.** Maximum vertical height. Collapsible icon rail/sidepanel.                                                       | Full-height canvas. Left rail holds project picker, natural file tree, search, settings, and profile. Collapsible to 0px width.                               |
 | **LaTeX Support**               | Native inline (`$math$`) and display (`$$math$$`) math formula rendering.                                                          | `remark-math` + `rehype-katex`. Instant, zero-layout-shift mathematical typography.                                                                           |
 | **Diagram Engine**              | Open, adaptable, interactive, themeable. **Zero handrolling.**                                                                     | Mermaid.js (`@mermaid-js/mermaid`) + Excalidraw (`@excalidraw/excalidraw`) wrapped in `react-zoom-pan-pinch` for smooth vector zoom and pan.                  |
-| **Living Canon (`projectmd/`)** | Visible, dedicated home for "the goods" (ADRs, roadmaps, diagrams, research). Replaces generic `ops/` to avoid SRE/DevOps clashes. | Top-level `projectmd/` folder containing `decisions/`, `roadmaps/`, `diagrams/`, `research/`.                                                                 |
-| **Tool Config (`.projectmd/`)** | Hidden dot-folder strictly for config, settings, and file inclusion mappings.                                                      | `.projectmd/config.json` stores user preferences, path mappings, and layout overrides. Never stores actual project documentation.                             |
+| **Living Canon (`mdninja/`)**   | Visible, dedicated home for "the goods" (ADRs, roadmaps, diagrams, research). Replaces generic `ops/` to avoid SRE/DevOps clashes. | Top-level `mdninja/` folder containing `decisions/`, `roadmaps/`, `diagrams/`, `research/`, `audits/`, `standards/`, `changelog/`.                            |
+| **Tool Config (`.mdninja/`)**   | Hidden dot-folder strictly for config, settings, and file inclusion mappings.                                                      | `.mdninja/config.json` stores user preferences, path mappings, and layout overrides. Never stores actual project documentation.                             |
 | **Directory Discovery**         | Aggregates existing repo directories (`docs/`, `.agents/`, root files) naturally.                                                  | Scans configured or standard paths without forcing files into a proprietary folder structure. Supports CLI `--paths`.                                         |
 | **Git Integration**             | Simple, predictable, un-overengineered.                                                                                            | Local: Direct `fs` writes to disk. Existing IDE/terminal handles Git. Optional simple "Commit" button in UI. Remote Hub: Standard GitHub REST/GraphQL API.    |
 
@@ -68,14 +68,14 @@ Modern development repositories are filled with Markdown:
 
 ## 4. Repository Discovery & Directory Architecture
 
-`projectmd` establishes a clean, explicit boundary between **tool configuration** (hidden) and **project canon** (visible):
+`mdNinja` establishes a clean, explicit boundary between **tool configuration** (hidden) and **project canon** (visible):
 
 ```
 [Repository Root]
-├── .projectmd/                     <-- [Hidden] Tool Configuration & Preferences
+├── .mdninja/                      <-- [Hidden] Tool Configuration & Preferences
 │   └── config.json                 <-- Included paths, layout preferences, custom mappings
 │
-├── projectmd/                      <-- [Visible] The Living Canon ("The Goods")
+├── mdninja/                       <-- [Visible] The Living Canon ("The Goods")
 │   ├── decisions/                  <-- Architecture Decision Records (ADRs)
 │   │   ├── 0000-template.md
 │   │   └── 0001-stack-decision.md

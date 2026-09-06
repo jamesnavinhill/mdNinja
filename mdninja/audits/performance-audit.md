@@ -8,7 +8,7 @@
 
 ## 1. Executive Summary
 
-A comprehensive performance audit was conducted on `@projectmd/web` v1.0.0 to establish baseline throughput, render latencies, and memory footprint across modern browser environments.
+A comprehensive performance audit was conducted on `@mdninja/web` v1.0.0 to establish baseline throughput, render latencies, and memory footprint across modern browser environments.
 
 | Metric | Target | Measured Result | Status |
 | :--- | :--- | :--- | :--- |
@@ -24,7 +24,7 @@ A comprehensive performance audit was conducted on `@projectmd/web` v1.0.0 to es
 
 ## 2. Bundle Analysis & Code Splitting
 
-Next.js 15 production build analysis (`npm run build --workspace=@projectmd/web`):
+Next.js 15 production build analysis (`npm run build --workspace=@mdninja/web`):
 
 ```
 Route (app)                                 Size  First Load JS

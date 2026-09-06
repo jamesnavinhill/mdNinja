@@ -145,11 +145,7 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
       !href.startsWith("mailto:") &&
       !href.startsWith("#")
     ) {
-      e.preventDefault();
-      let cleaned = href.replace(/^\.\//, "");
-      if (cleaned.startsWith("projectmd/")) {
-        cleaned = cleaned.replace(/^projectmd\//, "mdninja/");
-      }
+      const cleaned = href.replace(/^\.\//, "");
       window.dispatchEvent(new CustomEvent("mdninja:open-file", { detail: { path: cleaned } }));
     }
   };

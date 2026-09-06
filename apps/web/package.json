@@ -8,7 +8,8 @@
     "dev": "next dev --port 3000",
     "build": "next build",
     "start": "next start --port 3000",
-    "lint": "next lint"
+    "lint": "next lint",
+    "tauri": "tauri"
   },
   "dependencies": {
     "@vercel/analytics": "^2.0.1",
@@ -28,9 +29,11 @@
     "remark-math": "^6.0.0",
     "remark-parse": "^11.0.0",
     "remark-rehype": "^11.1.2",
-    "unified": "^11.0.5"
+    "unified": "^11.0.5",
+    "@tauri-apps/api": "^2.2.0"
   },
   "devDependencies": {
+    "@tauri-apps/cli": "^2.2.4",
     "@types/katex": "^0.16.7",
     "@types/node": "^22.13.4",
     "@types/react": "^19.0.8",

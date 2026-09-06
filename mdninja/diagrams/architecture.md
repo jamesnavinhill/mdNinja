@@ -3,8 +3,8 @@
 ```mermaid
 graph TD
     subgraph RepoRoot ["Repository Root (The Living Canon)"]
-        Config[".projectmd/config.json"]
-        Canon["projectmd/ (ADRs, Roadmaps, Diagrams, Audits)"]
+        Config[".mdninja/config.json"]
+        Canon["mdninja/ (ADRs, Roadmaps, Diagrams, Audits)"]
         Docs["docs/ (Architecture, Setup, Guides)"]
         Agents[".agents/ (Agent Skills & Directives)"]
         RootFiles["*.md (README, AGENTS, CHANGELOG)"]

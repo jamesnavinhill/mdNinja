@@ -26,7 +26,6 @@ import {
 export type RailTarget =
   | "canon"
   | "mdninja"
-  | "projectmd"
   | "audits"
   | "changelog"
   | "decisions"

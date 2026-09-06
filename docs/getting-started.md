@@ -1,26 +1,39 @@
 # Getting Started with mdNinja
 
-Welcome to **mdNinja**—the zero-constraint visual Markdown workbench and living canon viewer for modern engineering repositories.
+Welcome to **mdNinja**—the zero-constraint visual Markdown workbench and living canon platform for modern engineering repositories and AI agent pairs.
 
 ---
 
 ## 1. Quick Start Options
 
-### Option A: Explore the Public Live Demo
-Visit the production deployment at [mdninja.navinhill.com](https://mdninja.navinhill.com) to view the live open-source canon, roadmaps, architecture diagrams, and ADRs with zero install.
-
-### Option B: Run Locally in Any Repository
-Run the following command from the root of any repository:
+### Option A: Zero-Install CLI Runner (Recommended)
+Run mdNinja instantly in any repository without cloning:
 
 ```bash
-# Clone the repository
-git clone https://github.com/jamesnavinhill/projectmd.git
-cd projectmd
+# Launch the visual living canon workbench
+npx @mdninja/cli
 
-# Install dependencies
+# Or scaffold a fresh Living Canon layout
+npx @mdninja/cli init
+```
+
+### Option B: Explore the Public Live Demo
+Visit the production deployment at [mdninja.navinhill.com](https://mdninja.navinhill.com) to view the live open-source canon, roadmaps, architecture diagrams, and ADRs with zero install.
+
+### Option C: Native Desktop App (Tauri 2.0)
+mdNinja is built with Tauri 2.0 for a native, sub-20MB desktop experience with zero Electron memory bloat:
+
+```bash
+# Inside the mdNinja repository:
+cd apps/web
+npm run tauri dev
+```
+
+### Option D: Run Monorepo Locally
+```bash
+git clone https://github.com/jamesnavinhill/mdninja.git
+cd mdninja
 npm install
-
-# Start the local workbench
 npm run dev
 ```
 
@@ -28,41 +41,67 @@ Open `http://localhost:3000` in your browser. All local edits write directly to 
 
 ---
 
-## 2. Self-Hosting mdNinja
+## 2. CLI Command Reference (`@mdninja/cli`)
 
-Because **mdNinja** requires **zero external databases** (the filesystem and Git *are* the database), self-hosting is instant and zero-maintenance.
-
-### Deploying to Vercel (1-Click)
-
-1. Fork or push the `projectmd` repository to your GitHub account.
-2. In Vercel, click **Add New Project** and select your repository.
-3. Configure the **Monorepo Settings**:
-   * **Framework Preset:** `Next.js`
-   * **Root Directory:** `apps/web`
-4. Set your Environment Variables:
-   * `NEXT_PUBLIC_APP_URL`: Your deployment domain (e.g. `https://docs.yourcompany.com`)
-   * `GITHUB_CLIENT_ID`: Your GitHub OAuth App Client ID
-   * `GITHUB_CLIENT_SECRET`: Your GitHub OAuth App Client Secret
-5. Click **Deploy**.
+| Command | Description |
+| :--- | :--- |
+| `mdninja dev [options]` | Start the local visual workbench (default command). Options: `-p, --port <port>`, `--no-open`, `-d, --dir <path>`. |
+| `mdninja init [options]` | Scaffold `.mdninja/config.json` and canonical directories (`mdninja/`). Options: `-f, --force`, `-d, --dir <path>`. |
+| `mdninja mcp` | Launch the Model Context Protocol (MCP) server over `stdio` for AI assistants. |
+| `mdninja build` | Sync living canon documents and generate production bundle. |
 
 ---
 
-## 3. The Living Canon (`projectmd/`)
+## 3. AI Assistant Integration (MCP)
+
+Connect your favorite AI coding assistant (Cursor, Claude Desktop, Windsurf, Google Antigravity) directly to your project's Living Canon via the Model Context Protocol (MCP).
+
+### Claude Desktop Configuration
+Add the following to your `claude_desktop_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "mdninja": {
+      "command": "npx",
+      "args": ["-y", "@mdninja/cli", "mcp"]
+    }
+  }
+}
+```
+
+### Cursor / Windsurf Configuration
+Configure an MCP stdio server with:
+* **Command:** `npx`
+* **Args:** `-y @mdninja/cli mcp`
+
+### Available MCP Tools
+* `get_canon_structure`: Structured file hierarchy and metadata of the living canon.
+* `read_canon_doc`: Path-safe document reading.
+* `write_canon_doc`: Path-safe document writing with automated folder scaffolding.
+* `list_adrs`: Parsed summary of Architecture Decision Records.
+* `create_adr`: Sequential ADR generator with mandatory `🤖 Agent Enforcement`.
+* `get_roadmap`: Real-time milestone and task checklist retrieval.
+* `update_roadmap_task`: Programmatic toggling of roadmap tasks (`[ ]` <-> `[x]`).
+
+---
+
+## 4. The Living Canon (`mdninja/`)
 
 `mdNinja` surfaces a dedicated, structured home for your project's living history:
 
-* `projectmd/decisions/`: Architecture Decision Records (ADRs) with AI agent enforcement directives.
-* `projectmd/roadmaps/`: Living Gantt charts and progress tasklists.
-* `projectmd/diagrams/`: Interactive Mermaid vector maps with smooth 60fps pan and zoom.
-* `projectmd/research/`: Technical evaluations, benchmarks, and spikes.
-* `projectmd/audits/`: Performance metrics, bundle sizes, and security audits.
-* `projectmd/standards/`: Engineering guidelines, UI philosophy, and code conventions.
+* `mdninja/decisions/`: Architecture Decision Records (ADRs) with AI agent enforcement directives.
+* `mdninja/roadmaps/`: Living Gantt charts and progress tasklists.
+* `mdninja/diagrams/`: Interactive Mermaid vector maps with smooth 60fps pan and zoom.
+* `mdninja/research/`: Technical evaluations, benchmarks, and spikes.
+* `mdninja/audits/`: Performance metrics, bundle sizes, and security audits.
+* `mdninja/standards/`: Engineering guidelines, UI philosophy, and code conventions.
 * `docs/`: Product, API, and user-facing documentation.
 * `.agents/`: AI agent instructions, operational directives, and executable skills.
 
 ---
 
-## 4. Keyboard Shortcuts
+## 5. Keyboard Shortcuts
 
 | Shortcut | Action |
 | :--- | :--- |

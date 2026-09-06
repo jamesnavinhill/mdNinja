@@ -5,20 +5,20 @@
 
 ## 1. Context
 
-`projectmd` requires multiple interconnected packages:
-1. `@projectmd/web`: The Next.js 15 visual workbench and living canon viewer.
-2. `@projectmd/cli`: The zero-install CLI runner invoked via `npx projectmd`.
-3. `projectmd/`: The living canon containing engineering decisions, roadmaps, and diagrams.
+`mdNinja` requires multiple interconnected packages:
+1. `@mdninja/web`: The Next.js 15 visual workbench and living canon viewer.
+2. `@mdninja/cli`: The zero-install CLI runner invoked via `npx mdninja`.
+3. `mdninja/`: The living canon containing engineering decisions, roadmaps, and diagrams.
 
-We needed a structure that allows co-locating the web app and the CLI without polluting or conflicting with existing root documentation files (`projectmd_outline.md`, `projectmd.md`).
+We needed a structure that allows co-locating the web app and the CLI without polluting or conflicting with existing root documentation files.
 
 ## 2. Decision
 
 We will structure the project as an npm workspaces monorepo:
 * `apps/web`: Next.js 15 App Router web application.
 * `packages/cli`: Standalone CLI launcher.
-* `projectmd/`: First-class living canon directory.
-* `.projectmd/`: Tool configuration (`config.json`).
+* `mdninja/`: First-class living canon directory.
+* `.mdninja/`: Tool configuration (`config.json`).
 
 ## 3. Consequences
 
@@ -28,7 +28,7 @@ We will structure the project as an npm workspaces monorepo:
 * The web app can be developed, tested, and bundled independently.
 
 ### Negative
-* Requires referencing workspace scripts (e.g. `npm run dev --workspace=@projectmd/web`).
+* Requires referencing workspace scripts (e.g. `npm run dev --workspace=@mdninja/web`).
 
 ## 4. 🤖 Agent Enforcement
 

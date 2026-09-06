@@ -1,6 +1,6 @@
 # Engineering Standards & Living Canon Guidelines
 
-This document codifies the core engineering principles, design standards, and operational guidelines for **mdNinja / projectmd**.
+This document codifies the core engineering principles, design standards, and operational guidelines for **mdNinja**.
 
 ---
 
@@ -38,14 +38,14 @@ This document codifies the core engineering principles, design standards, and op
 * **Clear Workspace Separation:**
   * `apps/web`: Next.js 15 App Router visual frontend and serverless API handlers.
   * `packages/cli`: Standalone CLI launcher for local execution (`npx mdninja`).
-  * `projectmd/`: First-class living canon directory containing active engineering context.
-  * `.projectmd/`: Hidden configuration root (`config.json`).
+  * `mdninja/`: First-class living canon directory containing active engineering context.
+  * `.mdninja/`: Hidden configuration root (`config.json`).
 * **Vulnerability Zero-Tolerance:** All dependencies must pass `npm audit` with 0 vulnerabilities. Use workspace overrides in root `package.json` when upstream patches require explicit pinning.
 
 ---
 
 ## 5. 🤖 AI Agent Rules of Engagement
 
-* **Living Canon Mandate:** Every significant architectural decision must be codified as an ADR in `projectmd/decisions/` following `0000-template.md`.
-* **Roadmap Verification:** When completing multi-step initiatives, verify implementation and update `projectmd/roadmaps/roadmap.md` checklist items (`[x]`).
+* **Living Canon Mandate:** Every significant architectural decision must be codified as an ADR in `mdninja/decisions/` following `0000-template.md`.
+* **Roadmap Verification:** When completing multi-step initiatives, verify implementation and update `mdninja/roadmaps/roadmap.md` checklist items (`[x]`).
 * **Clean Commits:** Never commit build artifacts (`.next/`, `dist/`, `node_modules/`) or secrets (`.env`, `.env.local`) to version control.

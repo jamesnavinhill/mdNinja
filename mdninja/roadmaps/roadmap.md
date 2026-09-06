@@ -14,14 +14,18 @@ gantt
     KaTeX Math & Markdown AST        :done,    m4, 2026-09-04, 2d
     Mermaid & Pan/Zoom Viewport      :done,    m5, 2026-09-05, 2d
     Inline Block Editor              :done,    m6, 2026-09-05, 1d
-    section Phase 3: Hub & Polish
+    section Phase 3: Distribution & MCP
     Universal Theme Engine           :done,    m7, 2026-09-05, 1d
-    Multi-Repo GitHub OAuth          :done,    m8, 2026-09-06, 2d
-    Rebrand & Dynamic Canon Discovery:done,    m9, 2026-09-06, 1d
-    CLI Launcher (@mdninja/cli)      :active,  m10, 2026-09-06, 2d
-    section Phase 4: Self-Host & Distribution
-    Docker One-Click Container       :m11, after m10, 3d
-    Billing & Pro Team Workspaces    :m12, after m11, 5d
+    Rebrand & Dynamic Canon Discovery:done,    m8, 2026-09-06, 1d
+    CLI Runner (@mdninja/cli)        :done,    m9, 2026-09-06, 1d
+    Native Stdio MCP Server          :done,    m10, 2026-09-06, 1d
+    section Phase 4: Desktop & Release
+    Tauri 2.0 Desktop Shell          :done,    m11, 2026-09-06, 1d
+    Automated NPM & GitHub Releases  :done,    m12, 2026-09-06, 1d
+    section Phase 5: Cloud & Subdomains
+    Hosted Multi-Tenant Platform     :active,  m13, 2026-09-07, 4d
+    Custom Subdomains & CNAME Mapping:         m14, after m13, 4d
+    AI Canon Maintenance Agent       :         m15, after m14, 5d
 ```
 
 ## 📋 Task Execution State
@@ -37,21 +41,26 @@ gantt
 - [x] Integrate Mermaid.js with `react-zoom-pan-pinch`, dynamic light/dark reactivity, and flip-to-edit toggle.
 - [x] Build inline block editor, relative link interception, and local disk write API (`/api/content`).
 
-### Phase 3: Distribution & Multi-Repo
+### Phase 3: Distribution, CLI Runner & MCP Protocol
 - [x] Universal dark & light themes (Default, Tokyo Night, Nord Frost, GitHub Dimmed, Paper Sepia).
-- [x] Multi-Repo GitHub OAuth integration and client-isolated account manager.
-- [x] Rebrand to lowercase `mdninja` identifier with dynamic canon discovery and ADR 0006.
-- [x] Complete standalone `@mdninja/cli` executable runner (`npx mdninja`).
+- [x] Rebrand to lowercase `mdninja` identifier with dynamic canon discovery (ADR 0006).
+- [x] Standalone `@mdninja/cli` executable runner with `dev`, `init`, `build`, and `mcp` commands.
+- [x] Out-of-the-box Model Context Protocol (MCP) server over `stdio` for AI assistants (Cursor, Claude, Windsurf, Antigravity) (ADR 0007).
 
-### Phase 4: Public Deployment & Self-Hosting
-- [x] Public live deployment on `https://mdninja.navinhill.com` via Vercel with `@vercel/analytics`.
-- [x] Fix 100% of upstream security advisories (`npm audit` -> 0 vulnerabilities).
-- [x] Bundled canon fallback for zero-latency serverless rendering.
-- [ ] One-click Docker container recipe for private air-gapped deployments.
-- [ ] Optional team billing & organization workspace tiers.
+### Phase 4: Desktop Application & Automated Release
+- [x] Tauri 2.0 native desktop shell configuration (`apps/web/src-tauri`) with sub-20MB footprint and zero electron bloat (ADR 0008).
+- [x] Automated GitHub Actions CI/CD release workflow (`.github/workflows/release.yml`) for publishing `@mdninja/cli` to NPM under `@mdninja` organization.
+- [x] Bundled canon fallback for zero-latency serverless and offline rendering.
+
+### Phase 5: Cloud Hosting, Custom Subdomains & AI Agent (Next)
+- [ ] Multi-tenant living canon cloud hosting platform.
+- [ ] Automated user subdomains (e.g. `https://<org>.mdninja.dev` or `.mdninja.com`).
+- [ ] Custom domain mapping with automated SSL termination (CNAME routing).
+- [ ] Autonomous AI Canon Agent to monitor Git commits, suggest ADRs, and synchronize roadmaps.
+- [ ] Team subscription tiers, role-based access control (RBAC), and private repos.
 
 ---
 
 ## 🤖 Agent Context
-* **Current Focus:** Provide seamless self-hosting and public live demo viewing of the real repository canon with zero mock data.
-* **Definition of Done:** All tasks marked `[x]` must compile cleanly without TypeScript errors and render successfully in production.
+* **Current Focus:** Provide seamless self-hosting, desktop native execution, and stdio MCP connectivity for all major AI coding assistants.
+* **Definition of Done:** All tasks marked `[x]` must compile cleanly without TypeScript/Rust errors and verify successfully.

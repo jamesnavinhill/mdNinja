@@ -13,8 +13,8 @@ The project originally used `projectmd` as both product identity and hardcoded d
    - Use lowercase `mdninja` for all filesystem folders (`mdninja/`, `.mdninja/`), npm packages (`@mdninja/cli`, `@mdninja/web`), and CLI binaries (`npx mdninja`).
    - Use stylized **mdNinja** exclusively for visual branding, UI headers, documentation titles, and marketing.
 2. **Dynamic Canon Discovery:**
-   - Replace all hardcoded directory scans with dynamic discovery. The scanner inspects `.mdninja/config.json` (or fallback `.projectmd/config.json`) for the `"canon"` path.
-   - If not configured, automatically detect existing canon folders (`mdninja`, `projectmd`, `docs`).
+   - Replace all hardcoded directory scans with dynamic discovery. The scanner inspects `.mdninja/config.json` for the `"canon"` path.
+   - If not configured, automatically detect existing canon folders (`mdninja`, `docs`).
 3. **Internal Markdown Link Interception:**
    - Intercept internal relative `.md` links in `MarkdownRenderer` to load target documents inside the active workspace panel rather than reloading the browser.
 4. **Theme Reactivity:**
@@ -31,7 +31,7 @@ The project originally used `projectmd` as both product identity and hardcoded d
 
 ### Negative
 
-* Requires migration aliases (`projectmd` fallback) to support repositories created before the rebrand.
+- Requires existing repositories to follow `.mdninja` configuration standards.
 
 ## 4. 🤖 Agent Enforcement
 
