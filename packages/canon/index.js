@@ -93,4 +93,29 @@ async function initCanon(targetDir = process.cwd(), options = {}) {
   return result;
 }
 
-module.exports = { initCanon, buildCanonConfig, CANON_SUBDIRS };
+/**
+ * JSON Schema for `.mdninja/config.json`, served at /schema.json (apps/web/public).
+ * Describes exactly what the runtime honors today (name, canon). additionalProperties
+ * is true so forward-compatible fields don't hard-fail editors.
+ */
+const CANON_CONFIG_SCHEMA = {
+  $schema: "https://json-schema.org/draft/2020-12/schema",
+  $id: "https://mdninja.navinhill.com/schema.json",
+  title: "mdNinja Living Canon Configuration",
+  type: "object",
+  properties: {
+    $schema: { type: "string", description: "Reference to this schema." },
+    name: {
+      type: "string",
+      description: "Display name shown in the sidebar project picker (defaults to the folder name).",
+    },
+    canon: {
+      type: "string",
+      default: "./mdninja",
+      description: "Relative path to the living-canon folder.",
+    },
+  },
+  additionalProperties: true,
+};
+
+module.exports = { initCanon, buildCanonConfig, CANON_SUBDIRS, CANON_CONFIG_SCHEMA };

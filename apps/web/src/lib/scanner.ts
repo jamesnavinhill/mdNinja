@@ -6,9 +6,27 @@ import canonData from "./canon-data.json";
 export * from "./types";
 
 /**
- * Finds the project root by walking upwards looking for .mdninja or mdninja
+ * Finds the project root by walking upwards looking for .mdninja or mdninja.
+ *
+ * Upstream contract: when the CLI launches the workbench against an explicit
+ * directory (`mdninja dev --dir <path>`), it sets TARGET_CANON_DIR. Honor that
+ * first so the workbench serves the requested repo; otherwise fall back to the
+ * conventional walk-up from the process cwd.
  */
 export async function getProjectRoot(): Promise<string> {
+  const target = process.env.TARGET_CANON_DIR;
+  if (target) {
+    try {
+      const resolved = path.resolve(target);
+      const stat = await fs.stat(resolved);
+      if (stat.isDirectory()) {
+        return resolved;
+      }
+    } catch {
+      // Not a valid directory — fall through to cwd-based detection.
+    }
+  }
+
   let current = process.cwd();
   for (let i = 0; i < 5; i++) {
     try {

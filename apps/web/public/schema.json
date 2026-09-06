@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mdninja.navinhill.com/schema.json",
+  "title": "mdNinja Living Canon Configuration",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "Reference to this schema."
+    },
+    "name": {
+      "type": "string",
+      "description": "Display name shown in the sidebar project picker (defaults to the folder name)."
+    },
+    "canon": {
+      "type": "string",
+      "default": "./mdninja",
+      "description": "Relative path to the living-canon folder."
+    }
+  },
+  "additionalProperties": true
+}

@@ -76,3 +76,6 @@ We will fix all 13 items in one coordinated pass, at the source:
 * **DO:** Treat `packages/canon/index.js` (`@mdninja/canon`) as the single source of truth for the `.mdninja/config.json` shape and canonical `mdninja/` layout. `mdninja init` and `POST /api/scaffold` both delegate to it. Never copy the config object or directory list into another file.
 * **DO:** Scaffold/write ONLY config fields the runtime actually reads (today: `name`, `canon`). If you want `include`, `exclude`, or `pinned` to be live, implement them in `apps/web/src/lib/scanner.ts#getProjectConfig` first, then document them — never document a config the code ignores.
 * **DO:** Keep every doc link repo-relative. Never commit absolute `file:///...` paths.
+* **DO:** Preserve the OAuth CSRF contract — every initiate sets a fresh crypto-random `state` in a `httpOnly; SameSite=lax` cookie (path `/api/auth`) and the callback rejects on mismatch **before** token exchange. Never drop or stub the state check.
+* **DO:** Honor `TARGET_CANON_DIR` in the scanner before cwd-walking, so the CLI's `mdninja dev --dir <path>` serves the requested repo. The scanner, the workbench, and the MCP server must stay aligned on the same target.
+* **DO:** Generate `apps/web/public/schema.json` only from `@mdninja/canon` (`CANON_CONFIG_SCHEMA`) inside `sync-canon` — never hand-edit the static copy.

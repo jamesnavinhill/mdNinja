@@ -19,11 +19,26 @@ export async function GET(req: NextRequest) {
   ).replace(/\/$/, "");
   const redirectUri = `${appUrl}/api/auth/callback/github`;
 
+  // CSRF protection: generate a per-request, cryptographically random `state`
+  // and bind it to this browser via a short-lived httpOnly cookie. The callback
+  // must present the matching value or the code exchange is rejected.
+  const state = crypto.randomUUID();
+  const isProd = process.env.NODE_ENV === "production";
+
   const githubAuthUrl = new URL("https://github.com/login/oauth/authorize");
   githubAuthUrl.searchParams.set("client_id", clientId);
   githubAuthUrl.searchParams.set("redirect_uri", redirectUri);
   githubAuthUrl.searchParams.set("scope", "repo,read:user");
   githubAuthUrl.searchParams.set("prompt", "consent");
+  githubAuthUrl.searchParams.set("state", state);
 
-  return NextResponse.redirect(githubAuthUrl.toString());
+  const res = NextResponse.redirect(githubAuthUrl.toString());
+  res.cookies.set("mdninja_oauth_state", state, {
+    httpOnly: true,
+    secure: isProd,
+    sameSite: "lax",
+    maxAge: 600, // 10 minutes — ample for the OAuth round trip
+    path: "/api/auth",
+  });
+  return res;
 }

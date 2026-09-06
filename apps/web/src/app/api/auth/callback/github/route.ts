@@ -38,6 +38,26 @@ export async function GET(req: NextRequest) {
     return new NextResponse(missingConfigHtml, { headers: { "Content-Type": "text/html" } });
   }
 
+  // CSRF protection: the state GitHub echoed back must equal the value we bound
+  // to this browser in the httpOnly cookie when initiating the flow. Reject
+  // before exchanging the code so an attacker can't bind a foreign account here.
+  const returnedState = searchParams.get("state");
+  const expectedState = req.cookies.get("mdninja_oauth_state")?.value;
+  if (!returnedState || !expectedState || returnedState !== expectedState) {
+    const stateHtml = `
+      <!DOCTYPE html>
+      <html>
+        <head><title>Authentication Rejected</title></head>
+        <body style="background:#090a0f;color:#ef4444;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;font-family:sans-serif;">
+          <h3>OAuth State Mismatch</h3>
+          <p>The authentication request could not be verified (invalid or expired state). Please try connecting again.</p>
+          <button onclick="window.close()" style="margin-top:16px;padding:8px 16px;cursor:pointer;">Close Window</button>
+        </body>
+      </html>
+    `;
+    return new NextResponse(stateHtml, { status: 403, headers: { "Content-Type": "text/html" } });
+  }
+
   try {
     // 1. Exchange code for access token
     const tokenRes = await fetch("https://github.com/login/oauth/access_token", {
@@ -121,7 +141,10 @@ export async function GET(req: NextRequest) {
       </html>
     `;
 
-    return new NextResponse(successHtml, { headers: { "Content-Type": "text/html" } });
+    const successRes = new NextResponse(successHtml, { headers: { "Content-Type": "text/html" } });
+    // State consumed — clear the single-use cookie.
+    successRes.cookies.set("mdninja_oauth_state", "", { path: "/api/auth", maxAge: 0 });
+    return successRes;
   } catch (err) {
     const errorHtml = `
       <!DOCTYPE html>

@@ -162,6 +162,22 @@ async function main() {
   await fs.mkdir(path.dirname(outPath), { recursive: true });
   await fs.writeFile(outPath, JSON.stringify(outData, null, 2), "utf8");
 
+  // Upstream-sync the public config schema from the shared @mdninja/canon
+  // contract so /schema.json always describes exactly what the runtime honors
+  // (single source of truth — never hand-edit apps/web/public/schema.json).
+  try {
+    const { createRequire } = await import("module");
+    const require = createRequire(import.meta.url);
+    const { CANON_CONFIG_SCHEMA } = require("@mdninja/canon");
+    if (CANON_CONFIG_SCHEMA) {
+      const schemaPath = path.resolve(__dirname, "../public/schema.json");
+      await fs.writeFile(schemaPath, JSON.stringify(CANON_CONFIG_SCHEMA, null, 2), "utf8");
+      console.log(`[sync-canon] Regenerated public schema.json from @mdninja/canon`);
+    }
+  } catch (err) {
+    console.warn(`[sync-canon] Could not sync schema.json from @mdninja/canon: ${err.message}`);
+  }
+
   console.log(`[sync-canon] Successfully bundled ${Object.keys(contents).length} documents into ${outPath}`);
 }
 
