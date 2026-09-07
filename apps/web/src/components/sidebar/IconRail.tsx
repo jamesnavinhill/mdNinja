@@ -11,6 +11,8 @@ import {
   PanelLeftClose,
   PanelLeftOpen,
   Settings,
+  LogOut,
+  Github,
 } from "lucide-react";
 import {
   IconPack,
@@ -247,7 +249,7 @@ export const IconRail: React.FC<IconRailProps> = ({
           type="button"
           className="rail-btn"
           onClick={() => setIsProfileOpen(!isProfileOpen)}
-          title="Account & Configurations"
+          title={ghUser ? `@${ghUser.username}` : "Account & Settings"}
           style={{ position: "relative" }}
         >
           <div
@@ -263,9 +265,19 @@ export const IconRail: React.FC<IconRailProps> = ({
               fontSize: "10.5px",
               fontWeight: 700,
               boxShadow: "0 2px 5px rgba(0,0,0,0.3)",
+              overflow: "hidden",
             }}
           >
-            MD
+            {ghUser?.avatar?.startsWith("http") ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={ghUser.avatar}
+                alt={ghUser.username}
+                style={{ width: "100%", height: "100%", objectFit: "cover" }}
+              />
+            ) : (
+              initials ?? <Github size={14} />
+            )}
           </div>
         </button>
 
@@ -276,7 +288,7 @@ export const IconRail: React.FC<IconRailProps> = ({
               position: "absolute",
               bottom: "12px",
               left: "52px",
-              width: "220px",
+              width: "230px",
               backgroundColor: "var(--bg-secondary)",
               border: "1px solid var(--border-medium)",
               borderRadius: "var(--radius-md)",
@@ -288,6 +300,77 @@ export const IconRail: React.FC<IconRailProps> = ({
               gap: "2px",
             }}
           >
+            {/* Account header (real GitHub identity, or signed-out state) */}
+            {ghUser ? (
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "10px",
+                  padding: "8px",
+                  borderBottom: "1px solid var(--border-subtle)",
+                  marginBottom: "4px",
+                }}
+              >
+                <div
+                  style={{
+                    width: "30px",
+                    height: "30px",
+                    borderRadius: "50%",
+                    backgroundColor: "var(--accent-subtle)",
+                    color: "var(--accent)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontWeight: 700,
+                    fontSize: "11px",
+                    overflow: "hidden",
+                    flexShrink: 0,
+                  }}
+                >
+                  {ghUser.avatar?.startsWith("http") ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={ghUser.avatar}
+                      alt={ghUser.username}
+                      style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                    />
+                  ) : (
+                    initials
+                  )}
+                </div>
+                <div style={{ minWidth: 0 }}>
+                  <div
+                    style={{
+                      fontSize: "13px",
+                      fontWeight: 600,
+                      color: "var(--text-primary)",
+                      whiteSpace: "nowrap",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                    }}
+                  >
+                    {ghUser.name}
+                  </div>
+                  <div style={{ fontSize: "11px", color: "var(--text-muted)" }}>
+                    @{ghUser.username}
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div
+                style={{
+                  padding: "8px 10px",
+                  fontSize: "12px",
+                  color: "var(--text-muted)",
+                  borderBottom: "1px solid var(--border-subtle)",
+                  marginBottom: "4px",
+                }}
+              >
+                Not signed in
+              </div>
+            )}
+
             <button
               type="button"
               className="action-btn"
@@ -300,6 +383,23 @@ export const IconRail: React.FC<IconRailProps> = ({
               <Settings size={14} />
               <span>Settings</span>
             </button>
+
+            {ghUser && (
+              <button
+                type="button"
+                className="action-btn"
+                style={{
+                  justifyContent: "flex-start",
+                  width: "100%",
+                  padding: "6px 8px",
+                  color: "var(--danger)",
+                }}
+                onClick={handleSignOut}
+              >
+                <LogOut size={14} />
+                <span>Sign out</span>
+              </button>
+            )}
           </div>
         )}
       </div>

@@ -6,6 +6,22 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ---
 
+## [Unreleased] - 2026-09-07
+
+### Fixed
+* **Embedded diagrams are now readable.** Diagrams inside a markdown doc render at natural intrinsic size inside a pan/zoom viewport (wheel-zoom, drag-pan, double-click reset, floating zoom controls) instead of being force-shrunk to the column width via `max-width:100%` — which made any non-trivial diagram illegible with no zoom or scroll. Embedded and standalone diagrams share the same `react-zoom-pan-pinch` engine.
+* **Icon rail bottom group reachable at any viewport height.** The nav icon stack no longer pushes the theme-toggle + account-avatar group off-screen; the nav scrolls internally (`.rail-nav` is now a `min-height:0` flex scroll region) while `.rail-bottom` stays pinned. Previously the entire bottom group was outside the viewport and the avatar was unreachable.
+
+### Added
+* **Avatar profile popover menu (restored).** Clicking the account avatar in the icon rail opens a real popover: a signed-in GitHub account header (avatar image or initials, name, `@username`), **Settings**, and **Sign out** (clears the browser-local account, per ADR 0004 zero-retention). The avatar button itself now shows the real GitHub profile image when connected, initials otherwise, and falls back to a neutral icon when signed out — replacing the hardcoded "MD" gradient placeholder and single-item menu. Verified by driving the exact flow in a headless browser.
+* **Design + ops notes:** `mdninja/notes/sidebar-filetree-redesign-proposal.md` (read-back of the rail/file-tree sketch → behavior spec + files touched) and `mdninja/notes/npm-release-setup.md` (publishing runbook + the pre-tag gaps, incl. the `@mdninja/canon` private-dependency problem).
+
+### Removed
+* **Settings "Icon Engine" section.** Removed the hardcoded icon-pack picker + per-folder override grid from Settings (slop: wasted space, hardcoded, not customizable). The underlying two-pack icon registry (`lucide`/`phosphor`) in `apps/web/src/lib/icons.tsx` is retained and still drives `IconRail` + `FileTree` (defaulting to lucide); only the settings UI is gone. To be revisited as a properly designed, customizable surface later.
+* **Redundant panel close (✕) button.** The second panel's ✕ duplicated the existing split toggle (Columns icon + `Cmd/Ctrl+\`), which both opens and closes the split. Removed the button and its now-dead `onClosePanel` wiring.
+
+---
+
 ## [Unreleased] - 2026-09-06
 
 ### Fixed (truth / drift / security hardening)

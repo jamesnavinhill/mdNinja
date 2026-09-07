@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
-import { Eye, Code, Save, Columns, X, Check, Loader2 } from "lucide-react";
+import { Eye, Code, Save, Columns, Check, Loader2 } from "lucide-react";
 import { BlockEditor } from "../editor/BlockEditor";
 import canonData from "@/lib/canon-data.json";
 
@@ -10,7 +10,6 @@ interface PanelProps {
   filePath: string | null;
   isSplitOpen: boolean;
   onToggleSplit: () => void;
-  onClosePanel?: () => void;
   isActive: boolean;
   onFocus: () => void;
 }
@@ -20,7 +19,6 @@ export const Panel: React.FC<PanelProps> = ({
   filePath,
   isSplitOpen,
   onToggleSplit,
-  onClosePanel,
   isActive,
   onFocus,
 }) => {
@@ -200,17 +198,6 @@ export const Panel: React.FC<PanelProps> = ({
           >
             <Columns size={13} />
           </button>
-
-          {panelId === "panel2" && onClosePanel && (
-            <button
-              type="button"
-              className="action-btn"
-              onClick={onClosePanel}
-              title="Close this panel"
-            >
-              <X size={13} />
-            </button>
-          )}
         </div>
       </div>
 

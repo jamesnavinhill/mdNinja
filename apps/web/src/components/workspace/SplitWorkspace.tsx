@@ -80,10 +80,6 @@ export const SplitWorkspace: React.FC<SplitWorkspaceProps> = ({
               filePath={panel2File}
               isSplitOpen={true}
               onToggleSplit={toggleSplit}
-              onClosePanel={() => {
-                setIsSplitOpen(false);
-                setActivePanel("panel1");
-              }}
               isActive={activePanel === "panel2"}
               onFocus={() => setActivePanel("panel2")}
             />

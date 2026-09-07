@@ -9,15 +9,6 @@ import {
   ToggleLeft,
   ToggleRight,
 } from "lucide-react";
-import {
-  IconPack,
-  NavIconKey,
-  getNavIcon,
-  loadIconPack,
-  saveIconPack,
-  loadIconOverrides,
-  saveIconOverrides,
-} from "@/lib/icons";
 
 export type SettingsTab = "github" | "themes";
 
@@ -514,9 +505,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 </div>
               </div>
 
-              {/* Icon Engine: pack picker + per-folder overrides */}
-              <IconEngineEditor />
-
               {/* Typography & Comfort Sliders */}
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
                 <div>
@@ -584,147 +572,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             </div>
           )}
         </div>
-      </div>
-    </div>
-  );
-};
-
-/* --------------------------------------------------------------------------
-   Icon Engine Editor
-   Lets the user pick an icon pack (Lucide / Phosphor) and override the icon
-   used for each living-canon folder in the sidebar rail + file tree.
---------------------------------------------------------------------------- */
-
-const OVERRIDABLE_FOLDERS: NavIconKey[] = [
-  "audits",
-  "changelog",
-  "decisions",
-  "diagrams",
-  "notes",
-  "research",
-  "roadmaps",
-];
-
-const NAV_ICON_KEYS: NavIconKey[] = [
-  "folder",
-  "file",
-  "audits",
-  "changelog",
-  "decisions",
-  "diagrams",
-  "notes",
-  "research",
-  "roadmaps",
-];
-
-const IconEngineEditor: React.FC = () => {
-  const [pack, setPack] = React.useState<IconPack>("lucide");
-  const [overrides, setOverrides] = React.useState<Partial<Record<NavIconKey, NavIconKey>>>({});
-
-  React.useEffect(() => {
-    setPack(loadIconPack());
-    setOverrides(loadIconOverrides());
-  }, []);
-
-  const notify = () => window.dispatchEvent(new Event("mdninja:icons-changed"));
-
-  const handlePack = (p: IconPack) => {
-    setPack(p);
-    saveIconPack(p);
-    notify();
-  };
-
-  const handleOverride = (folder: NavIconKey, icon: NavIconKey | "") => {
-    const next = { ...overrides };
-    if (icon === "") {
-      delete next[folder];
-    } else {
-      next[folder] = icon;
-    }
-    setOverrides(next);
-    saveIconOverrides(next);
-    notify();
-  };
-
-  return (
-    <div>
-      <label style={{ fontSize: "12px", fontWeight: 600, color: "var(--text-muted)" }}>
-        ICON ENGINE
-      </label>
-
-      {/* Pack picker */}
-      <div style={{ display: "flex", gap: "8px", marginTop: "8px" }}>
-        {(["lucide", "phosphor"] as IconPack[]).map((p) => {
-          const Preview = getNavIcon(p, "decisions");
-          const active = pack === p;
-          return (
-            <button
-              key={p}
-              type="button"
-              onClick={() => handlePack(p)}
-              className="action-btn"
-              style={{
-                border: active ? "2px solid var(--accent)" : "1px solid var(--border-medium)",
-                backgroundColor: active ? "var(--accent-subtle)" : "var(--bg-tertiary)",
-                color: active ? "var(--accent)" : "var(--text-secondary)",
-                padding: "8px 14px",
-                textTransform: "capitalize",
-                display: "flex",
-                alignItems: "center",
-                gap: "6px",
-              }}
-            >
-              <Preview size={14} />
-              {p}
-            </button>
-          );
-        })}
-      </div>
-
-      {/* Per-folder icon overrides */}
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(2, 1fr)",
-          gap: "8px",
-          marginTop: "12px",
-        }}
-      >
-        {OVERRIDABLE_FOLDERS.map((folder) => {
-          const resolved = overrides[folder] ?? folder;
-          const Current = getNavIcon(pack, resolved);
-          return (
-            <div
-              key={folder}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "8px",
-                padding: "6px 8px",
-                border: "1px solid var(--border-subtle)",
-                borderRadius: "var(--radius-sm)",
-                backgroundColor: "var(--bg-tertiary)",
-              }}
-            >
-              <Current size={14} />
-              <span style={{ fontSize: "12px", color: "var(--text-secondary)", flex: 1 }}>
-                {folder}
-              </span>
-              <select
-                className="search-input"
-                value={resolved}
-                onChange={(e) => handleOverride(folder, e.target.value as NavIconKey | "")}
-                style={{ padding: "4px 6px", fontSize: "11px", width: "110px" }}
-              >
-                {NAV_ICON_KEYS.map((k) => (
-                  <option key={k} value={k}>
-                    {k}
-                  </option>
-                ))}
-              </select>
-            </div>
-          );
-        })}
       </div>
     </div>
   );

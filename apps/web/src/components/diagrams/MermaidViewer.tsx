@@ -147,9 +147,10 @@ export const MermaidViewer: React.FC<MermaidViewerProps> = ({
     };
   }, [code, themeMode, tick]);
 
-  // Embedded diagram in markdown: natural aspect ratio, full width, zero wasted void.
-  // No floating "Edit Code" button — raw editing lives exclusively in the panel
-  // toolbar (removes clutter over the focal content, per design principles).
+  // Embedded diagram in markdown: pannable/zoomable viewport so large diagrams stay
+  // readable instead of being shrunk to fit the column width. Wheel-zoom + drag-pan
+  // + floating controls, same engine as standalone. Raw editing lives in the panel
+  // toolbar (no floating edit button, per ADR 0010).
   if (!isStandalone) {
     return (
       <div
@@ -161,7 +162,8 @@ export const MermaidViewer: React.FC<MermaidViewerProps> = ({
           backgroundColor: "var(--bg-secondary)",
           borderRadius: "var(--radius-md)",
           border: "1px solid var(--border-subtle)",
-          padding: "16px 14px",
+          height: "420px",
+          overflow: "hidden",
           display: "flex",
           flexDirection: "column",
         }}
@@ -171,18 +173,40 @@ export const MermaidViewer: React.FC<MermaidViewerProps> = ({
             Failed to render diagram: {error}
           </div>
         ) : (
-          <div
-            className="embedded-mermaid-svg"
-            style={{
-              width: "100%",
-              overflowX: "auto",
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              padding: "8px 0",
-            }}
-            dangerouslySetInnerHTML={{ __html: svgContent }}
-          />
+          <TransformWrapper
+            initialScale={1}
+            minScale={0.2}
+            maxScale={5}
+            centerOnInit
+            wheel={{ step: 0.12 }}
+            doubleClick={{ mode: "reset" }}
+          >
+            {({ zoomIn, zoomOut, resetTransform }) => (
+              <div style={{ position: "relative", width: "100%", height: "100%", flex: 1 }}>
+                <div className="diagram-floating-controls" style={{ bottom: "8px", right: "8px" }}>
+                  <button type="button" className="action-btn" onClick={() => zoomIn()} title="Zoom in">
+                    <ZoomIn size={13} />
+                  </button>
+                  <button type="button" className="action-btn" onClick={() => zoomOut()} title="Zoom out">
+                    <ZoomOut size={13} />
+                  </button>
+                  <button type="button" className="action-btn" onClick={() => resetTransform()} title="Reset view">
+                    <RotateCcw size={13} />
+                  </button>
+                </div>
+                <TransformComponent
+                  wrapperStyle={{ width: "100%", height: "100%" }}
+                  contentStyle={{ width: "100%", height: "100%", display: "flex", justifyContent: "center", alignItems: "center" }}
+                >
+                  <div
+                    className="embedded-mermaid-svg diagram-embedded-panzoom"
+                    style={{ display: "flex", justifyContent: "center", alignItems: "center" }}
+                    dangerouslySetInnerHTML={{ __html: svgContent }}
+                  />
+                </TransformComponent>
+              </div>
+            )}
+          </TransformWrapper>
         )}
       </div>
     );

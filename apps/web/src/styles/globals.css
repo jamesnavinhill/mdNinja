@@ -245,7 +245,7 @@ html, body {
   align-items: center;
   padding: 0;
   flex-shrink: 0;
-  z-index: 20;
+  z-index: 120;
   box-sizing: border-box;
 }
 
@@ -270,11 +270,21 @@ html, body {
 
 .rail-nav {
   padding-top: 6px;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: none;
+}
+
+.rail-nav::-webkit-scrollbar {
+  display: none;
 }
 
 .rail-bottom {
   margin-top: auto;
   padding-bottom: 8px;
+  flex-shrink: 0;
 }
 
 .rail-separator {
@@ -559,14 +569,17 @@ html, body {
 
 .embedded-mermaid-svg {
   width: 100%;
-  overflow-x: auto;
+  height: 100%;
 }
 
-.embedded-mermaid-svg svg {
-  max-width: 100%;
-  height: auto !important;
+/* Inside a pan/zoom viewport the SVG keeps its natural intrinsic size so it can be
+   zoomed up to full readability instead of being shrunk to the column width.
+   Small diagrams still fit: mermaid emits max-width via its own sizing; we only
+   remove the forced shrink that made large diagrams illegible. */
+.diagram-embedded-panzoom svg {
+  max-width: none;
+  height: auto;
   display: block;
-  margin: 0 auto;
 }
 
 /* Floating Controls for Diagram */
