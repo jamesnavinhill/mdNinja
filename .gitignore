@@ -5,6 +5,7 @@ build/
 target/
 **/src-tauri/target/
 *.log
+*.tsbuildinfo
 .DS_Store
 .env*
 !.env.example

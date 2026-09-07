@@ -39,7 +39,7 @@ export default function WorkspacePage() {
 
   // Settings & Styling State
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const [settingsTab, setSettingsTab] = useState<SettingsTab>("config");
+  const [settingsTab, setSettingsTab] = useState<SettingsTab>("themes");
   const [accentColor, setAccentColor] = useState("#cea1ce");
   const [fontFamily, setFontFamily] = useState("-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif");
   const [fontSize, setFontSize] = useState(14);

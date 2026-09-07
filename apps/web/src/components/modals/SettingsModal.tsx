@@ -3,15 +3,11 @@
 import React, { useState, useEffect } from "react";
 import {
   X,
-  Settings,
   GitBranch,
-  Network,
   Palette,
   Plus,
-  Check,
   ToggleLeft,
   ToggleRight,
-  ExternalLink,
 } from "lucide-react";
 import {
   IconPack,
@@ -23,7 +19,7 @@ import {
   saveIconOverrides,
 } from "@/lib/icons";
 
-export type SettingsTab = "config" | "github" | "diagrams" | "themes";
+export type SettingsTab = "github" | "themes";
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -62,7 +58,7 @@ const FONTS = [
 export const SettingsModal: React.FC<SettingsModalProps> = ({
   isOpen,
   onClose,
-  initialTab = "config",
+  initialTab = "themes",
   accentColor,
   onAccentChange,
   fontFamily,
@@ -239,27 +235,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
         >
           <button
             type="button"
-            onClick={() => setActiveTab("config")}
-            title="mdNinja config/settings"
-            style={{
-              width: "40px",
-              height: "40px",
-              borderRadius: "50%",
-              border: activeTab === "config" ? "2px solid var(--accent)" : "1px solid var(--border-medium)",
-              backgroundColor: activeTab === "config" ? "var(--accent-subtle)" : "transparent",
-              color: activeTab === "config" ? "var(--accent)" : "var(--text-secondary)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              cursor: "pointer",
-              transition: "all 0.15s ease",
-            }}
-          >
-            <Settings size={18} />
-          </button>
-
-          <button
-            type="button"
             onClick={() => setActiveTab("github")}
             title="GitHub configurations"
             style={{
@@ -280,27 +255,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
               <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z" />
             </svg>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setActiveTab("diagrams")}
-            title="diagram settings"
-            style={{
-              width: "40px",
-              height: "40px",
-              borderRadius: "50%",
-              border: activeTab === "diagrams" ? "2px solid var(--accent)" : "1px solid var(--border-medium)",
-              backgroundColor: activeTab === "diagrams" ? "var(--accent-subtle)" : "transparent",
-              color: activeTab === "diagrams" ? "var(--accent)" : "var(--text-secondary)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              cursor: "pointer",
-              transition: "all 0.15s ease",
-            }}
-          >
-            <Network size={18} />
           </button>
 
           <button
@@ -327,61 +281,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
         {/* Content Area */}
         <div style={{ flex: 1, padding: "28px 36px", overflowY: "auto", display: "flex", flexDirection: "column" }}>
-          {/* TAB 1: mdNinja config/settings */}
-          {activeTab === "config" && (
-            <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-              <div>
-                <h3 style={{ fontSize: "16px", fontWeight: 600, color: "var(--text-primary)" }}>
-                  mdNinja Configuration
-                </h3>
-                <p style={{ fontSize: "12.5px", color: "var(--text-secondary)", marginTop: "4px" }}>
-                  Project-level settings stored in <code>.mdninja/config.json</code>
-                </p>
-              </div>
-
-              <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
-                <div>
-                  <label style={{ fontSize: "12px", fontWeight: 600, color: "var(--text-muted)" }}>
-                    LIVING CANON ROOT DIRECTORY
-                  </label>
-                  <input
-                    type="text"
-                    defaultValue="./mdninja"
-                    className="search-input"
-                    style={{ marginTop: "6px", width: "100%", padding: "8px 12px" }}
-                  />
-                </div>
-
-                <div>
-                  <label style={{ fontSize: "12px", fontWeight: 600, color: "var(--text-muted)" }}>
-                    DEFAULT WORKSPACE LAYOUT
-                  </label>
-                  <select
-                    className="search-input"
-                    defaultValue="single"
-                    style={{ marginTop: "6px", width: "100%", padding: "8px 12px" }}
-                  >
-                    <option value="single">Single Panel Focus</option>
-                    <option value="split">Equal Split Workspace (50 / 50)</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label style={{ fontSize: "12px", fontWeight: 600, color: "var(--text-muted)" }}>
-                    AUTOMATIC DISK PERSISTENCE
-                  </label>
-                  <div style={{ display: "flex", alignItems: "center", gap: "10px", marginTop: "6px" }}>
-                    <input type="checkbox" defaultChecked id="autosave-toggle" style={{ accentColor: "var(--accent)" }} />
-                    <label htmlFor="autosave-toggle" style={{ fontSize: "13px", color: "var(--text-secondary)" }}>
-                      Write directly to local filesystem on save (Cmd+S)
-                    </label>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* TAB 2: GitHub configurations */}
+          {/* TAB: GitHub configurations */}
           {activeTab === "github" && (
             <div style={{ display: "flex", height: "100%", gap: "24px" }}>
               {/* Accounts & Repositories */}
@@ -534,64 +434,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             </div>
           )}
 
-          {/* TAB 3: diagram settings */}
-          {activeTab === "diagrams" && (
-            <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-              <div>
-                <h3 style={{ fontSize: "16px", fontWeight: 600, color: "var(--text-primary)" }}>
-                  Diagram Engine Settings
-                </h3>
-                <p style={{ fontSize: "12.5px", color: "var(--text-secondary)", marginTop: "4px" }}>
-                  Customize Mermaid.js rendering and interactive pan/zoom behavior
-                </p>
-              </div>
-
-              <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-                <div>
-                  <label style={{ fontSize: "12px", fontWeight: 600, color: "var(--text-muted)" }}>
-                    MERMAID THEME
-                  </label>
-                  <select className="search-input" defaultValue="dark" style={{ marginTop: "6px", width: "100%", padding: "8px 12px" }}>
-                    <option value="dark">Dark (matches workspace)</option>
-                    <option value="neutral">Neutral Slate</option>
-                    <option value="forest">Forest</option>
-                    <option value="default">Default</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label style={{ fontSize: "12px", fontWeight: 600, color: "var(--text-muted)" }}>
-                    DEFAULT PAN/ZOOM SENSITIVITY
-                  </label>
-                  <input
-                    type="range"
-                    min="1"
-                    max="10"
-                    defaultValue="5"
-                    style={{ width: "100%", marginTop: "8px", accentColor: "var(--accent)" }}
-                  />
-                </div>
-
-                <div>
-                  <label style={{ fontSize: "12px", fontWeight: 600, color: "var(--text-muted)" }}>
-                    CANVAS INTERACTION
-                  </label>
-                  <div style={{ display: "flex", flexDirection: "column", gap: "8px", marginTop: "8px" }}>
-                    <label style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "12.5px", color: "var(--text-secondary)" }}>
-                      <input type="checkbox" defaultChecked style={{ accentColor: "var(--accent)" }} />
-                      Auto-center and scale diagrams to fit viewport on load
-                    </label>
-                    <label style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "12.5px", color: "var(--text-secondary)" }}>
-                      <input type="checkbox" defaultChecked style={{ accentColor: "var(--accent)" }} />
-                      Show floating zoom and flip-to-edit controls on hover
-                    </label>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* TAB 4: styling and themes (Strictly matching user instructions!) */}
+          {/* Styling and themes (Strictly matching user instructions!) */}
           {activeTab === "themes" && (
             <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
               <div>

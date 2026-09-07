@@ -1,24 +1,5 @@
 {
   "$schema": "https://mdninja.navinhill.com/schema.json",
   "name": "mdninja",
-  "canon": "./mdninja",
-  "include": [
-    "mdninja/**/*.md",
-    "docs/**/*.md",
-    ".agents/**/*.md",
-    "*.md"
-  ],
-  "exclude": [
-    "**/node_modules/**",
-    "**/.git/**",
-    "**/.next/**"
-  ],
-  "preferences": {
-    "defaultLayout": "single",
-    "pinned": [
-      "mdninja/roadmaps/roadmap.md",
-      "mdninja/diagrams/architecture.md",
-      "mdninja/research/mdninja_outline.md"
-    ]
-  }
+  "canon": "./mdninja"
 }

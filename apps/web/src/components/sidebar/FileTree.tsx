@@ -37,6 +37,29 @@ export const FileTree: React.FC<FileTreeProps> = ({
 }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>({});
+  const defaultsAppliedRef = React.useRef(false);
+
+  // Default workspace layout (per design-edits):
+  //   - mdninja living canon: EXPANDED (the goods, front and centre)
+  //   - docs / .agents / project root: COLLAPSED (tucked out of the way)
+  //   - each canon subfolder: COLLAPSED (open on demand), matching the screenshot.
+  useEffect(() => {
+    if (!scanData || defaultsAppliedRef.current) return;
+    defaultsAppliedRef.current = true;
+    const canonKey = scanData.canonName || "mdninja";
+    const nested: Record<string, boolean> = {};
+    (scanData.canon || []).forEach((item) => {
+      if (item.isDirectory) nested[item.relativePath] = true; // collapsed by default
+    });
+    setCollapsedSections((prev) => ({
+      [canonKey]: false,       // canon expanded
+      docs: true,              // docs collapsed
+      ".agents": true,         // .agents collapsed
+      root: true,              // project root collapsed
+      ...nested,               // each canon subfolder collapsed
+      ...prev,                 // respect any manual toggles/seeds already applied
+    }));
+  }, [scanData]);
 
   // Icon engine: pack + overrides loaded once.
   const [iconPack, setIconPack] = useState<IconPack>("lucide");

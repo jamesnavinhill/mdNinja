@@ -38,8 +38,9 @@ gantt
 
 ### Phase 2: Rendering & Block Editing
 - [x] Implement Markdown AST pipeline with `remark-gfm`, `remark-math`, and `rehype-katex`.
-- [x] Integrate Mermaid.js with `react-zoom-pan-pinch`, dynamic light/dark reactivity, and flip-to-edit toggle.
+- [x] Integrate Mermaid.js with `react-zoom-pan-pinch`, dynamic light/dark reactivity, and flip-to-edit toggle. *(flip-to-edit later removed in favor of single-source panel-toolbar editing — see [ADR 0010](../decisions/0010-diagram-theme-derivation-and-edit-consolidation.md))*
 - [x] Build inline block editor, relative link interception, and local disk write API (`/api/content`).
+- [x] Expand `docs/` into a full user-manual set (getting-started, user-guide, cli-reference, configuration-guide, architecture-overview, contributing, troubleshooting).
 
 ### Phase 3: Distribution, CLI Runner & MCP Protocol
 - [x] Universal dark & light themes (Default, Tokyo Night, Nord Frost, GitHub Dimmed, Paper Sepia).

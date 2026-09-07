@@ -13,14 +13,10 @@ import { MermaidViewer } from "../diagrams/MermaidViewer";
 
 interface MarkdownRendererProps {
   content: string;
-  onUpdateContent?: (newContent: string) => void;
-  onBlockClick?: () => void;
 }
 
 export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
   content,
-  onUpdateContent,
-  onBlockClick,
 }) => {
   // Extract mermaid code blocks
   const { segments } = useMemo(() => {
@@ -108,26 +104,10 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
     };
   }, [segments]);
 
-  const handleMermaidCodeUpdate = (id: string, newCode: string) => {
-    if (!onUpdateContent) return;
-    let currentBlock = 0;
-    const updated = content.replace(/```mermaid\s*([\s\S]*?)```/g, (fullMatch) => {
-      const targetId = `mermaid-seg-${currentBlock++}`;
-      if (targetId === id) {
-        return `\`\`\`mermaid\n${newCode}\n\`\`\``;
-      }
-      return fullMatch;
-    });
-    onUpdateContent(updated);
-  };
-
   if (isPureDiagram && segments[0].content) {
     return (
       <div style={{ width: "100%", height: "100%", display: "flex", flex: 1 }}>
-        <MermaidViewer
-          code={segments[0].content}
-          onCodeChange={(newCode) => segments[0].id && handleMermaidCodeUpdate(segments[0].id, newCode)}
-        />
+        <MermaidViewer code={segments[0].content} />
       </div>
     );
   }
@@ -154,7 +134,6 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
     <div
       className="markdown-body"
       onClick={handleContainerClick}
-      onDoubleClick={onBlockClick}
       style={{ display: "flex", flexDirection: "column", minHeight: "100%" }}
     >
       {processedSegments.map((seg, idx) => {
@@ -169,11 +148,7 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
         } else if (seg.type === "mermaid" && seg.code) {
           return (
             <div key={seg.id || idx} style={{ width: "100%", margin: "14px 0" }}>
-              <MermaidViewer
-                code={seg.code}
-                isStandalone={false}
-                onCodeChange={(newCode) => seg.id && handleMermaidCodeUpdate(seg.id, newCode)}
-              />
+              <MermaidViewer code={seg.code} isStandalone={false} />
             </div>
           );
         }

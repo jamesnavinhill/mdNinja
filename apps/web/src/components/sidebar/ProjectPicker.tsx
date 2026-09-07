@@ -30,7 +30,6 @@ export const ProjectPicker: React.FC<ProjectPickerProps> = ({
 
   const projects = [
     { name: currentProject, active: true, branch: "main" },
-    { name: "mdninja-web", active: false, branch: "main" },
   ];
 
   return (

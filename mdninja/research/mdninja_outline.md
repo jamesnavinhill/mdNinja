@@ -209,8 +209,10 @@ Modern development repositories are filled with Markdown:
   - Native rendering and editing of `.excalidraw` or embedded Excalidraw JSON blocks for freeform architecture sketching.
 - **Interactive Viewport (`react-zoom-pan-pinch`):**
   - Diagrams embed inside a responsive canvas supporting smooth mouse-wheel zooming, click-and-drag panning, and a 1-click "Reset Zoom" button.
-- **Flip-to-Edit:**
-  - Clicking an "Edit" icon on any rendered diagram flips the component to reveal the raw Markdown code block for immediate editing.
+- **Single-Source Editing:**
+  - Rendered diagrams are read-only surfaces. Raw Mermaid syntax is edited exclusively through the panel toolbar's edit mode, keeping the diagram's focal area free of redundant controls.
+- **Theme Parity:**
+  - Every diagram color is derived from the live workspace theme, reading palette, and accent CSS variables, so a separate Mermaid theme setting does not exist.
 
 ---
 

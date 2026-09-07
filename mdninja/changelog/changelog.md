@@ -15,6 +15,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 * **OAuth postMessage hardened.** `/api/auth/callback/github` now posts the account payload to the application origin (was `*`); the Settings listener now validates `event.origin === window.location.origin` (tokens are no longer broadcast to an arbitrary opener window).
 * **Docs corrected to match code.** README, getting-started, configuration-guide, and architecture-overview now describe only implemented behavior: clarified what `mdninja dev -d` does and doesn't affect, that the bundled workbench scans the directory it is launched from, and that `mdninja build` requires a monorepo checkout. Replaced all non-portable absolute `file:///c:/...` ADR links with repo-relative links.
 
+### Removed
+* **Mermaid "Edit Code" flip controls & dead diagram settings (ADR 0010).** Removed the floating edit buttons overlaid on rendered diagrams (raw editing lives exclusively in the panel toolbar's edit mode), and removed the Settings "Diagram Engine" tab — its Mermaid theme dropdown, pan/zoom slider, and interaction checkboxes were unwired controls that never affected rendering. Diagrams are now purely derived from the live workspace theme, reading palette, and accent, with no separate diagram theme to configure.
+
+### Added
+* **Documentation set expanded to a full user-manual suite.** `docs/` now holds getting-started, user-guide (new), cli-reference (new), configuration-guide, architecture-overview (expanded with monorepo layout, API surface, data-flow sequence, deployment models, and a decisions index), contributing (new: build/CI commands and repo rules), and troubleshooting (new). All claims verified against the code in the same pass; stale claims removed (double-click edit shortcut, sub-20MB desktop installer, config.json field comment, unverified vulnerability badge).
+* **Session-closeout rules codified in `AGENTS.md`.** Mandatory per-session changelog entry for any code or plan change, a docs-accuracy pass, and commit + push at session end.
+* **Settings modal slimmed to two tabs** (GitHub, Themes). The "config" tab presented three fake controls (canon-path input, layout select, autosave checkbox) that were bound to no state; project config lives in `.mdninja/config.json` on disk.
+
+### Changed
+* **This repo's `.mdninja/config.json` normalized** to the `@mdninja/canon` contract (`$schema`, `name`, `canon`) — it still carried the unimplemented `include`/`exclude`/`preferences` fields the runtime ignores.
+* **ProjectPicker no longer lists a phantom second repo;** it shows the scanned project and the real "Connect Repository…" action.
+* **`tsconfig.tsbuildinfo` untracked and ignored** (`*.tsbuildinfo` in `.gitignore`) — it's a build artifact, not source.
+
 ---
 
 ## [1.0.0] - 2026-09-06

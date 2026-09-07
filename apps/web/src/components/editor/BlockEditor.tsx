@@ -77,13 +77,7 @@ export const BlockEditor: React.FC<BlockEditorProps> = ({
 
   return (
     <div style={{ height: "100%", width: "100%", overflowY: "auto" }}>
-      <MarkdownRenderer
-        content={localContent}
-        onUpdateContent={(updated) => {
-          setLocalContent(updated);
-          onChange(updated);
-        }}
-      />
+      <MarkdownRenderer content={localContent} />
     </div>
   );
 };

@@ -6,7 +6,6 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.7-blue?style=flat-square&logo=typescript)](https://www.typescriptlang.org/)
 [![Tauri 2.0](https://img.shields.io/badge/Tauri-2.0-orange?style=flat-square&logo=tauri)](https://tauri.app/)
 [![MCP](https://img.shields.io/badge/MCP-Protocol-purple?style=flat-square)](https://modelcontextprotocol.io)
-[![Vulnerabilities](https://img.shields.io/badge/Vulnerabilities-0-brightgreen?style=flat-square)](https://github.com/jamesnavinhill/mdNinja)
 [![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)](LICENSE)
 [![Live Demo](https://img.shields.io/badge/Live_Demo-mdninja.navinhill.com-indigo?style=flat-square)](https://mdninja.navinhill.com)
 
@@ -20,12 +19,12 @@ Explore the public live demo: **[mdninja.navinhill.com](https://mdninja.navinhil
 
 * **Zero-Constraint Equal Split Workspace:** Dual equal panels (`Cmd + \`) powered by `react-resizable-panels`. No artificial "primary vs context" restrictions—both panels have 100% identical capabilities.
 * **Native Model Context Protocol (MCP) Server:** Out-of-the-box stdio integration for Cursor, Claude Desktop, Windsurf, and Google Antigravity to navigate, read, write, and index the Living Canon.
-* **Native Desktop Shell (Tauri 2.0):** Sub-20MB installer and <30MB baseline RAM footprint—eliminating Electron's heavy resource penalties.
+* **Native Desktop Shell (Tauri 2.0):** The same Next.js frontend runs in an OS-native webview via a small Rust crate (`apps/web/src-tauri`) — lightweight, with no Electron runtime footprint. Desktop packaging is a roadmap item.
 * **LaTeX Formula Typography:** Synchronous, zero-layout-shift mathematical rendering via KaTeX (`$math$` and `$$math$$`).
-* **Unconstrained Vector Diagrams:** Interactive Mermaid.js code blocks converted into 60fps pan/zoom vectors with flip-to-edit toggle and dynamic dark/light theme reactivity.
+* **Unconstrained Vector Diagrams:** Interactive Mermaid.js code blocks converted into 60fps pan/zoom vectors that automatically derive their colors from your workspace theme, reading palette, and accent.
 * **Direct Local Filesystem I/O:** Edits write directly to disk (`fs.writeFile`) with zero lag. Your Git repository remains the single source of truth.
-* **Native Living Canon Discovery:** Automatically scans and organizes `mdninja/` (ADRs, roadmaps, diagrams, audits), `docs/`, `.agents/`, and root Markdown files.
-* **Zero-Leak Multi-User Isolation:** Ephemeral OAuth token exchange with strict browser-local `localStorage` persistence. Zero tokens or user repositories are ever stored on the server ([ADR 0004](mdninja/decisions/0004-zero-leak-multi-user-isolation.md)).
+* **Native Living Canon Discovery:** Scans and organizes `mdninja/` (ADRs, roadmaps, diagrams, audits), `docs/`, `.agents/`, and root Markdown.
+* **Zero-Leak Multi-User Isolation:** Ephemeral OAuth exchange with browser-local `localStorage` persistence. Zero tokens or user repositories on the server ([ADR 0004](mdninja/decisions/0004-zero-leak-multi-user-isolation.md)).
 
 ---
 
@@ -87,7 +86,7 @@ Visit `http://localhost:3000` in your browser.
 ```
 [Repository Root]
 ├── .mdninja/                      <-- [Hidden] Tool Configuration & Mappings
-│   └── config.json                 <-- Included paths, layout preferences, pinned files
+│   └── config.json                 <-- name + canon path; contract in packages/canon
 │
 ├── mdninja/                       <-- [Visible] The Living Canon ("The Goods")
 │   ├── audits/                     <-- Performance benchmarks & security audits
@@ -124,7 +123,6 @@ Visit `http://localhost:3000` in your browser.
 | `Cmd + \` / `Ctrl + \` | Toggle Equal Dual-Panel Split View |
 | `Cmd + B` / `Ctrl + B` | Toggle File Explorer Sidebar |
 | `Cmd + S` / `Ctrl + S` | Save active document directly to disk |
-| `Double Click` | Activate inline block editor in preview mode |
 
 ---
 
@@ -140,14 +138,19 @@ See [ADR 0004](mdninja/decisions/0004-zero-leak-multi-user-isolation.md) for ful
 
 ---
 
-## 📄 Documentation Links
+## 📄 Documentation
 
-* [Getting Started Guide](docs/getting-started.md)
-* [Architecture Overview](docs/architecture-overview.md)
-* [Configuration Guide](docs/configuration-guide.md)
-* [Living Roadmap](mdninja/roadmaps/roadmap.md)
-* [Cloud Hosting & Custom Domains Roadmap](mdninja/roadmaps/cloud-and-custom-domains-roadmap.md)
-* [Architecture Decision Records (ADRs)](mdninja/decisions/0001-monorepo-structure.md)
+| Doc | What it covers |
+| :--- | :--- |
+| [Getting Started](docs/getting-started.md) | Run it four ways — CLI, demo, monorepo, desktop. |
+| [User Guide](docs/user-guide.md) | Drive the workbench: panels, editing, themes, GitHub connect. |
+| [CLI & MCP Reference](docs/cli-reference.md) | Every flag, every MCP tool, wiring examples. |
+| [Configuration Guide](docs/configuration-guide.md) | Project config, env vars, OAuth app setup, user preferences. |
+| [Architecture Overview](docs/architecture-overview.md) | Layout, pipeline, API surface, data flow, deployment models. |
+| [Contributing](docs/contributing.md) | Build commands, CI, repo rules, doc voice. |
+| [Troubleshooting](docs/troubleshooting.md) | Fast fixes for the failures you'll actually hit. |
+| [Living Roadmap](mdninja/roadmaps/roadmap.md) | Current phase + execution checklist. |
+| [Architecture Decision Records](mdninja/decisions/0001-monorepo-structure.md) | Every architectural decision, with agent-enforcement rules. |
 
 ---
 
