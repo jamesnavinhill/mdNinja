@@ -8,9 +8,11 @@ import {
   Plus,
   ToggleLeft,
   ToggleRight,
+  PanelLeft,
 } from "lucide-react";
+import { loadSidebarState, setSidebarState, SIDEBAR_EVENT } from "@/lib/sidebar";
 
-export type SettingsTab = "github" | "themes";
+export type SettingsTab = "github" | "themes" | "sidebar";
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -267,6 +269,27 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             }}
           >
             <Palette size={18} />
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab("sidebar")}
+            title="Sidebar & file tree"
+            style={{
+              width: "40px",
+              height: "40px",
+              borderRadius: "50%",
+              border: activeTab === "sidebar" ? "2px solid var(--accent)" : "1px solid var(--border-medium)",
+              backgroundColor: activeTab === "sidebar" ? "var(--accent-subtle)" : "transparent",
+              color: activeTab === "sidebar" ? "var(--accent)" : "var(--text-secondary)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              cursor: "pointer",
+              transition: "all 0.15s ease",
+            }}
+          >
+            <PanelLeft size={18} />
           </button>
         </div>
 
@@ -571,7 +594,97 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               </div>
             </div>
           )}
+
+          {/* TAB: Sidebar & File Tree (central, persisted — single source via lib/sidebar.ts) */}
+          {activeTab === "sidebar" && (
+            <SidebarSettingsSection />
+          )}
         </div>
+      </div>
+    </div>
+  );
+};
+
+/* --------------------------------------------------------------------------
+   Sidebar & File Tree settings
+   Central, uniform, persistent controls for the panel behavior. Reads and
+   writes the same `mdninja_sidebar` blob the rail + tree use (lib/sidebar.ts),
+   so behavior stays in parity everywhere. No local duplicate state.
+--------------------------------------------------------------------------- */
+
+const SidebarSettingsSection: React.FC = () => {
+  const [state, setState] = React.useState(() => loadSidebarState());
+
+  React.useEffect(() => {
+    const refresh = () => setState(loadSidebarState());
+    window.addEventListener(SIDEBAR_EVENT, refresh);
+    return () => window.removeEventListener(SIDEBAR_EVENT, refresh);
+  }, []);
+
+  const update = (patch: Partial<ReturnType<typeof loadSidebarState>>) => {
+    setSidebarState(patch);
+    setState(loadSidebarState());
+  };
+
+  const SliderRow = ({ label, value, min, max, step, field, suffix }: {
+    label: string; value: number; min: number; max: number; step: number;
+    field: "hoverInDelayMs" | "hoverOutDelayMs"; suffix: string;
+  }) => (
+    <div>
+      <label style={{ fontSize: "12px", fontWeight: 600, color: "var(--text-muted)" }}>
+        {label}: {value}
+{suffix}
+      </label>
+      <input
+        type="range"
+        min={min}
+        max={max}
+        step={step}
+        value={value}
+        onChange={(e) => update({ [field]: Number(e.target.value) } as any)}
+        disabled={!state.hoverExpand}
+        style={{ width: "100%", marginTop: "10px", accentColor: "var(--accent)", opacity: state.hoverExpand ? 1 : 0.4 }}
+      />
+    </div>
+  );
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+      <div>
+        <h3 style={{ fontSize: "16px", fontWeight: 600, color: "var(--text-primary)" }}>
+          Sidebar & File Tree
+        </h3>
+        <p style={{ fontSize: "12px", color: "var(--text-secondary)", marginTop: "4px" }}>
+          Panel behavior is centralized and persisted here — the rail and tree read the same settings.
+        </p>
+      </div>
+
+      {/* Hover-expand toggle */}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 14px", border: "1px solid var(--border-subtle)", borderRadius: "var(--radius-md)", backgroundColor: "var(--bg-tertiary)" }}>
+        <div>
+          <div style={{ fontSize: "13px", fontWeight: 600, color: "var(--text-primary)" }}>Expand on hover</div>
+          <div style={{ fontSize: "11.5px", color: "var(--text-muted)", marginTop: "2px" }}>
+            Hovering the project icon opens the file tree; moving away closes it. Clicking pins it open.
+          </div>
+        </div>
+        <button
+          type="button"
+          onClick={() => update({ hoverExpand: !state.hoverExpand })}
+          style={{ background: "transparent", border: "none", cursor: "pointer", color: state.hoverExpand ? "var(--success)" : "var(--text-muted)" }}
+        >
+          {state.hoverExpand ? <ToggleRight size={26} /> : <ToggleLeft size={26} />}
+        </button>
+      </div>
+
+      {/* Delays */}
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
+        <SliderRow label="HOVER OPEN DELAY" value={state.hoverInDelayMs} min={0} max={600} step={25} field="hoverInDelayMs" suffix="ms" />
+        <SliderRow label="HOVER CLOSE DELAY" value={state.hoverOutDelayMs} min={0} max={1000} step={25} field="hoverOutDelayMs" suffix="ms" />
+      </div>
+
+      {/* Current mode (read-only status) */}
+      <div style={{ padding: "10px 14px", border: "1px dashed var(--border-subtle)", borderRadius: "var(--radius-md)", fontSize: "12px", color: "var(--text-muted)" }}>
+        Panel is currently <strong style={{ color: "var(--text-primary)" }}>{state.mode}</strong>. Select a file from the tree to auto-close a hovered panel; pinning keeps it open.
       </div>
     </div>
   );

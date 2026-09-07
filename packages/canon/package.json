@@ -1,8 +1,27 @@
 {
   "name": "@mdninja/canon",
   "version": "1.0.0",
-  "private": true,
   "description": "Single source of truth for the mdNinja living-canon configuration contract and scaffolding.",
+  "keywords": [
+    "mdninja",
+    "living-canon",
+    "config",
+    "scaffold",
+    "adr",
+    "agents"
+  ],
   "main": "index.js",
-  "license": "MIT"
+  "files": [
+    "index.js"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "author": "James Hill <jamesnavinhill18@gmail.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jamesnavinhill/mdNinja.git",
+    "directory": "packages/canon"
+  }
 }

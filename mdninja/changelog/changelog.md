@@ -6,6 +6,22 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ---
 
+## [Unreleased] - 2026-09-07 (comark, sidebar, releases)
+
+### Changed
+* **Markdown rendering migrated to comark (ADR 0011).** The hand-rolled regex-split + per-segment `unified()` pipeline is deleted from the render path. `comark` parses, `@comark/react` renders, KaTeX via comark's `math` plugin; fenced ```mermaid blocks are tokenized by comark and rendered through the existing `<MermaidViewer>` (theme + pan/zoom preserved). Relative links still dispatch `mdninja:open-file`. Removed deps: unified + all remark/rehype packages. Added: `comark`, `@comark/react`, `beautiful-mermaid` (mermaid plugin's renderer); `katex` bumped to `^0.17.0`.
+* **Sidebar driven by a persisted state machine (ADR 0012).** New `apps/web/src/lib/sidebar.ts` owns the panel as one enum (`hidden` / `peek` / `pinned`) in `localStorage` (`mdninja_sidebar`, broadcast on `mdninja:sidebar`). Hover over the project icon transiently opens ("peek"), clicking pins ("pinned"); a file select closes a peeked panel but never a pinned one. The rail always stays; the panel is what collapses.
+
+### Added
+* **Icon-rail projects strip** — the project/repo selector is now a strip of icon-only chips at the top of the icon rail (replacing the deleted `ProjectPicker` dropdown). Active repo is ringed; chips drag-and-drop to reorder (persisted to `mdninja_projects_order`); a `+` chip opens GitHub settings. With 0–1 repos it collapses to the single repo icon — no picker noise on single-repo installs.
+* **GitHub selector + Sync in the panel header** — active repo, branch, and a Sync button that re-scans; search input sits directly below.
+* **Settings → Sidebar & File Tree tab** — expand-on-hover toggle and hover open/close delays, read/written through the same `mdninja_sidebar` blob so behavior is centralized, uniform, and persisted everywhere.
+* **npm + GitHub release pipeline finished (ADR 0013).** `@mdninja/canon` is now publishable (was `private`; it is a hard dep of the public CLI, so it ships too — public + provenance). `release.yml` publishes canon before the CLI. Changesets adopted (`@changesets/cli`, `.changeset/config.json`) for versioning + changelogs. Owner action remaining: add the `NPM_TOKEN` repo secret.
+
+### Fixed
+* **Relative markdown links inside docs resolve again.** Links were dispatched with a bare filename (`troubleshooting.md`), 404-ing. `filePath` now threads `Panel → BlockEditor → MarkdownRenderer`, and relative hrefs resolve against the open document's directory (`docs/architecture-overview.md` + `troubleshooting.md` → `docs/troubleshooting.md`). Verified end-to-end in the browser (was pre-existing, also fixed).
+* **Docs corrected to comark.** architecture-overview, user-guide, and configuration-guide now describe the comark pipeline and the new Sidebar settings tab (stale unified/icon-engine claims removed).
+
 ## [Unreleased] - 2026-09-07
 
 ### Fixed

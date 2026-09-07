@@ -3,17 +3,26 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { IconRail, RailTarget } from "@/components/sidebar/IconRail";
 import { FileTree } from "@/components/sidebar/FileTree";
-import { ProjectPicker } from "@/components/sidebar/ProjectPicker";
 import { SplitWorkspace } from "@/components/workspace/SplitWorkspace";
 import { SettingsModal, SettingsTab } from "@/components/modals/SettingsModal";
 import { RepoScanResult, getFirstDocInDirectory } from "@/lib/types";
+import {
+  loadSidebarState,
+  isPanelOpen,
+  forceHide,
+  togglePinnedFromRail,
+  peekCloseOnIntentOut,
+  SIDEBAR_EVENT,
+  type SidebarMode,
+} from "@/lib/sidebar";
 import canonData from "@/lib/canon-data.json";
 
 export default function WorkspacePage() {
   const [scanData, setScanData] = useState<RepoScanResult | null>(
     (canonData.scanResult as RepoScanResult) || null
   );
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [sidebarMode, setSidebarMode] = useState<SidebarMode>("hidden");
+  const [sidebarSettings, setSidebarSettings] = useState(() => loadSidebarState());
   const [theme, setTheme] = useState<"dark" | "light">("dark");
   const [activeTarget, setActiveTarget] = useState<RailTarget | null>("roadmaps");
   const [targetToFocus, setTargetToFocus] = useState<string | null>(null);
@@ -84,17 +93,33 @@ export default function WorkspacePage() {
     fetchFiles();
   }, [fetchFiles]);
 
+  // Subscribe to sidebar state changes
+  useEffect(() => {
+    const loadState = () => {
+      const state = loadSidebarState();
+      setSidebarMode(state.mode);
+      setSidebarSettings(state);
+    };
+    loadState();
+    window.addEventListener(SIDEBAR_EVENT, loadState);
+    return () => window.removeEventListener(SIDEBAR_EVENT, loadState);
+  }, []);
+
   // Global hotkey: Cmd+B toggles sidebar
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "b") {
         e.preventDefault();
-        setIsSidebarOpen((prev) => !prev);
+        if (isPanelOpen(sidebarMode)) {
+          forceHide();
+        } else {
+          togglePinnedFromRail();
+        }
       }
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, []);
+  }, [sidebarMode]);
 
   // Theme toggle
   const toggleTheme = () => {
@@ -127,14 +152,25 @@ export default function WorkspacePage() {
   const handleSelectTarget = (target: RailTarget) => {
     setActiveTarget(target);
     setTargetToFocus(target);
-    if (!isSidebarOpen) {
-      setIsSidebarOpen(true);
-    }
 
     const topDoc = getFirstDocInDirectory(target, scanData);
     if (topDoc) {
       handleSelectFile(topDoc);
     }
+  };
+
+  // Hover intent handlers for sidebar panel
+  const [pointerTimerRef] = useState<{ current: NodeJS.Timeout | null }>({ current: null });
+
+  const handlePointerEnter = () => {
+    if (pointerTimerRef.current) clearTimeout(pointerTimerRef.current);
+  };
+
+  const handlePointerLeave = () => {
+    if (pointerTimerRef.current) clearTimeout(pointerTimerRef.current);
+    pointerTimerRef.current = setTimeout(() => {
+      peekCloseOnIntentOut();
+    }, sidebarSettings.hoverOutDelayMs);
   };
 
   const handleOpenSettings = (tab?: SettingsTab) => {
@@ -145,40 +181,41 @@ export default function WorkspacePage() {
   };
 
   const currentActiveFile = (!isSplitOpen || activePanel === "panel1") ? panel1File : panel2File;
+  const isSidebarPanelOpen = isPanelOpen(sidebarMode);
 
   return (
     <main className="app-container">
-      {/* Icon Rail with collapse hover, directory navigation, theme toggle & avatar profile popover */}
-      <IconRail
-        isSidebarOpen={isSidebarOpen}
-        onToggleSidebar={() => setIsSidebarOpen((prev) => !prev)}
-        activeTarget={activeTarget}
-        onSelectTarget={handleSelectTarget}
-        theme={theme}
-        onToggleTheme={toggleTheme}
-        onOpenSettings={handleOpenSettings}
-        rootName={scanData?.rootName}
-        canonName={scanData?.canonName}
-      />
-
-      {/* Collapsible Sidebar */}
-      <aside className={`sidebar-panel ${isSidebarOpen ? "" : "collapsed"}`}>
-        {/* Header matches 38px height with Project / Repo Picker */}
-        <div className="sidebar-header">
-          <ProjectPicker
-            currentProject={scanData?.rootName || "mdninja"}
-            onOpenGithubSettings={() => handleOpenSettings("github")}
-          />
-        </div>
-
-        {/* Search Bar & Dynamic File Tree */}
-        <FileTree
-          scanData={scanData}
-          activeFile={currentActiveFile}
-          onSelectFile={handleSelectFile}
-          targetToFocus={targetToFocus}
+      {/* Icon Rail + Sidebar Panel Wrapper for pointer-intent detection */}
+      <div
+        className="sidebar-wrapper"
+        onPointerEnter={handlePointerEnter}
+        onPointerLeave={handlePointerLeave}
+      >
+        {/* Icon Rail with projects strip, directory navigation, theme toggle & avatar profile popover */}
+        <IconRail
+          activeTarget={activeTarget}
+          onSelectTarget={handleSelectTarget}
+          theme={theme}
+          onToggleTheme={toggleTheme}
+          onOpenSettings={handleOpenSettings}
+          rootName={scanData?.rootName}
+          canonName={scanData?.canonName}
+          sidebarMode={sidebarMode}
+          sidebarSettings={sidebarSettings}
         />
-      </aside>
+
+        {/* Collapsible Sidebar */}
+        <aside className={`sidebar-panel ${isSidebarPanelOpen ? "" : "collapsed"}`}>
+          {/* Dynamic File Tree with GitHub selector header + search */}
+          <FileTree
+            scanData={scanData}
+            activeFile={currentActiveFile}
+            onSelectFile={handleSelectFile}
+            targetToFocus={targetToFocus}
+            onSync={fetchFiles}
+          />
+        </aside>
+      </div>
 
       {/* Dual Equal Panel Workspace */}
       <SplitWorkspace

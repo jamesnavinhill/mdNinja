@@ -8,11 +8,11 @@ import {
   FileCode,
   Sun,
   Moon,
-  PanelLeftClose,
-  PanelLeftOpen,
   Settings,
   LogOut,
   Github,
+  Plus,
+  Folder,
 } from "lucide-react";
 import {
   IconPack,
@@ -21,6 +21,12 @@ import {
   loadIconPack,
   loadIconOverrides,
 } from "@/lib/icons";
+import {
+  togglePinnedFromRail,
+  peekOpen,
+  type SidebarMode,
+  type SidebarSettings,
+} from "@/lib/sidebar";
 import type { SettingsTab } from "@/components/modals/SettingsModal";
 
 export type RailTarget =
@@ -39,8 +45,6 @@ export type RailTarget =
   | "root";
 
 interface IconRailProps {
-  isSidebarOpen: boolean;
-  onToggleSidebar: () => void;
   activeTarget: RailTarget | null;
   onSelectTarget: (target: RailTarget) => void;
   theme: "dark" | "light";
@@ -48,6 +52,16 @@ interface IconRailProps {
   onOpenSettings: (tab?: SettingsTab) => void;
   rootName?: string;
   canonName?: string;
+  sidebarMode: SidebarMode;
+  sidebarSettings: SidebarSettings;
+}
+
+interface GitHubRepo {
+  name: string;
+  fullName: string;
+  active: boolean;
+  branch?: string;
+  iconUrl?: string;
 }
 
 interface RailItemDef {
@@ -57,8 +71,6 @@ interface RailItemDef {
 }
 
 export const IconRail: React.FC<IconRailProps> = ({
-  isSidebarOpen,
-  onToggleSidebar,
   activeTarget,
   onSelectTarget,
   theme,
@@ -66,10 +78,40 @@ export const IconRail: React.FC<IconRailProps> = ({
   onOpenSettings,
   rootName,
   canonName = "mdninja",
+  sidebarMode,
+  sidebarSettings,
 }) => {
-  const [isLogoHovered, setIsLogoHovered] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const profileRef = useRef<HTMLDivElement>(null);
+
+  // GitHub repos for the projects strip
+  const [repos, setRepos] = useState<GitHubRepo[]>([]);
+  const [projectsOrder, setProjectsOrder] = useState<string[]>([]);
+  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
+
+  useEffect(() => {
+    const loadRepos = () => {
+      try {
+        const raw = localStorage.getItem("mdninja_repos");
+        const repoList: GitHubRepo[] = raw ? JSON.parse(raw) : [];
+        setRepos(repoList);
+
+        const orderRaw = localStorage.getItem("mdninja_projects_order");
+        const order: string[] = orderRaw ? JSON.parse(orderRaw) : [];
+        setProjectsOrder(order);
+      } catch {
+        setRepos([]);
+        setProjectsOrder([]);
+      }
+    };
+    loadRepos();
+    window.addEventListener("mdninja:projects-changed", loadRepos);
+    window.addEventListener("mdninja:repos-changed", loadRepos);
+    return () => {
+      window.removeEventListener("mdninja:projects-changed", loadRepos);
+      window.removeEventListener("mdninja:repos-changed", loadRepos);
+    };
+  }, []);
 
   // Real connected GitHub identity (browser-local, zero server retention — ADR 0004).
   const [ghUser, setGhUser] = useState<{ username: string; name: string; avatar: string } | null>(null);
@@ -156,6 +198,63 @@ export const IconRail: React.FC<IconRailProps> = ({
     { key: "root", label: rootName || "mdninja", icon: <FileCode size={15} /> },
   ];
 
+  // Ordered repos for display
+  const orderedRepos = React.useMemo(() => {
+    if (projectsOrder.length === 0 || repos.length === 0) return repos;
+    const indexed = new Map(repos.map((r) => [r.fullName, r]));
+    const ordered: GitHubRepo[] = [];
+    projectsOrder.forEach((fullName) => {
+      const repo = indexed.get(fullName);
+      if (repo) {
+        ordered.push(repo);
+        indexed.delete(fullName);
+      }
+    });
+    indexed.forEach((repo) => ordered.push(repo));
+    return ordered;
+  }, [repos, projectsOrder]);
+
+  // Drag-and-drop handlers for project chips
+  const handleDragStart = (e: React.DragEvent, index: number) => {
+    setDraggedIndex(index);
+    e.dataTransfer.effectAllowed = "move";
+  };
+
+  const handleDragOver = (e: React.DragEvent, index: number) => {
+    e.preventDefault();
+    if (draggedIndex === null || draggedIndex === index) return;
+    const newOrder = [...orderedRepos];
+    const [draggedRepo] = newOrder.splice(draggedIndex, 1);
+    newOrder.splice(index, 0, draggedRepo);
+    const newOrderNames = newOrder.map((r) => r.fullName);
+    setProjectsOrder(newOrderNames);
+    setDraggedIndex(index);
+  };
+
+  const handleDragEnd = () => {
+    if (draggedIndex !== null) {
+      try {
+        localStorage.setItem("mdninja_projects_order", JSON.stringify(projectsOrder));
+        window.dispatchEvent(new Event("mdninja:projects-changed"));
+      } catch {
+        /* storage unavailable */
+      }
+    }
+    setDraggedIndex(null);
+  };
+
+  const handleProjectClick = () => {
+    togglePinnedFromRail();
+  };
+
+  const handleProjectHover = () => {
+    if (sidebarSettings.hoverExpand && sidebarMode === "hidden") {
+      setTimeout(() => {
+        peekOpen();
+      }, sidebarSettings.hoverInDelayMs);
+    }
+  };
+
   // Close profile popover on click outside
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -176,33 +275,73 @@ export const IconRail: React.FC<IconRailProps> = ({
         <button
           type="button"
           className="rail-btn"
-          onClick={onToggleSidebar}
-          onMouseEnter={() => setIsLogoHovered(true)}
-          onMouseLeave={() => setIsLogoHovered(false)}
-          title={isSidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
-          style={{ width: "30px", height: "30px" }}
+          onClick={handleProjectClick}
+          onMouseEnter={handleProjectHover}
+          title="mdNinja"
+          style={{ width: "30px", height: "30px", position: "relative" }}
         >
-          {isLogoHovered ? (
-            isSidebarOpen ? (
-              <PanelLeftClose size={16} color="var(--accent)" />
-            ) : (
-              <PanelLeftOpen size={16} color="var(--accent)" />
-            )
-          ) : (
-            // mdNinja custom SVG Logo
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-              <path
-                d="M12 3L14.2 9.8L21 12L14.2 14.2L12 21L9.8 14.2L3 12L9.8 9.8L12 3Z"
-                fill="var(--accent)"
-                stroke="var(--accent)"
-                strokeWidth="1.2"
-                strokeLinejoin="round"
-              />
-              <circle cx="12" cy="12" r="2.2" fill="var(--bg-secondary)" />
-            </svg>
+          {/* mdNinja custom SVG Logo */}
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+            <path
+              d="M12 3L14.2 9.8L21 12L14.2 14.2L12 21L9.8 14.2L3 12L9.8 9.8L12 3Z"
+              fill="var(--accent)"
+              stroke="var(--accent)"
+              strokeWidth="1.2"
+              strokeLinejoin="round"
+            />
+            <circle cx="12" cy="12" r="2.2" fill="var(--bg-secondary)" />
+          </svg>
+          {/* Pin indicator dot when pinned */}
+          {sidebarMode === "pinned" && (
+            <div
+              style={{
+                position: "absolute",
+                bottom: "4px",
+                right: "4px",
+                width: "6px",
+                height: "6px",
+                borderRadius: "50%",
+                backgroundColor: "var(--accent)",
+              }}
+            />
           )}
         </button>
       </div>
+
+      {/* Projects Strip - GitHub repos */}
+      {orderedRepos.length > 1 && (
+        <div className="rail-projects">
+          {orderedRepos.map((repo, idx) => {
+            const isActive = repo.active;
+            return (
+              <div
+                key={repo.fullName}
+                className={`rail-project-chip ${isActive ? "active" : ""}`}
+                draggable
+                onDragStart={(e) => handleDragStart(e, idx)}
+                onDragOver={(e) => handleDragOver(e, idx)}
+                onDragEnd={handleDragEnd}
+                title={repo.fullName}
+              >
+                {repo.iconUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={repo.iconUrl} alt={repo.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                ) : (
+                  <Folder size={14} />
+                )}
+              </div>
+            );
+          })}
+          <button
+            type="button"
+            className="rail-project-chip add-project"
+            onClick={() => onOpenSettings("github")}
+            title="Add project"
+          >
+            <Plus size={14} />
+          </button>
+        </div>
+      )}
 
       {/* Directory Navigation Icons: starts right under header naturally */}
       <div className="rail-group rail-nav">

@@ -11,12 +11,17 @@
     "build": "npm run build --workspace=@mdninja/web",
     "sync-canon": "npm run sync-canon --workspace=@mdninja/web",
     "start": "npm run start --workspace=@mdninja/web",
-    "lint": "npm run lint --workspace=@mdninja/web"
+    "lint": "npm run lint --workspace=@mdninja/web",
+    "changeset": "changeset",
+    "version-packages": "changeset version"
   },
   "overrides": {
     "next": {
       "postcss": "^8.5.28"
     },
     "postcss": "^8.5.28"
+  },
+  "devDependencies": {
+    "@changesets/cli": "^3.0.2"
   }
 }

@@ -46,4 +46,4 @@ Token flow: the callback route performs the code exchange, hands the account to 
 
 ## 4. Browser-side user preferences
 
-Settings → **Styling, Themes & Comfort** holds the reading experience: reading palette, accent color, font family/size, line height, document max width, and the folder icon engine. These are per-visitor UI state — they never touch your repo.
+Settings → **Styling, Themes & Comfort** holds the reading experience: reading palette, accent color, font family/size, line height, and document max width. Settings → **Sidebar & File Tree** holds panel behavior: expand-on-hover and hover delays. These are per-visitor UI state — they never touch your repo.

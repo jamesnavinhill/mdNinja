@@ -213,6 +213,7 @@ export const Panel: React.FC<PanelProps> = ({
         ) : filePath ? (
           <BlockEditor
             content={content}
+            filePath={filePath}
             isEditMode={isEditMode}
             onChange={handleContentChange}
             onSave={handleSave}

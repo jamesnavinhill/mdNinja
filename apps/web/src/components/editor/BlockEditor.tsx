@@ -5,6 +5,7 @@ import { MarkdownRenderer } from "./MarkdownRenderer";
 
 interface BlockEditorProps {
   content: string;
+  filePath?: string | null;
   isEditMode: boolean;
   onChange: (newContent: string) => void;
   onSave: () => void;
@@ -12,6 +13,7 @@ interface BlockEditorProps {
 
 export const BlockEditor: React.FC<BlockEditorProps> = ({
   content,
+  filePath,
   isEditMode,
   onChange,
   onSave,
@@ -77,7 +79,7 @@ export const BlockEditor: React.FC<BlockEditorProps> = ({
 
   return (
     <div style={{ height: "100%", width: "100%", overflowY: "auto" }}>
-      <MarkdownRenderer content={localContent} />
+      <MarkdownRenderer content={localContent} filePath={filePath} />
     </div>
   );
 };

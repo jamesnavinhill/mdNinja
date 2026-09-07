@@ -39,17 +39,14 @@ The web app is one deployable; the CLI is one npm package; the canonical layout 
 
 ## 3. The AST Pipeline
 
-Documents render through [unified](https://github.com/unifiedjs/unified):
+Documents are parsed and rendered by [comark](https://comark.dev) (`comark` core parser + `@comark/react` renderer):
 
-```
-remark-parse → remark-gfm → remark-math → remark-rehype → rehype-katex → rehype-highlight → rehype-stringify
-```
+* **One parse** produces a compact, serializable document; the React renderer emits it inside `.markdown-body` so `markdown.css` styling applies.
+* CommonMark + GFM cover tables, task lists, strikethrough, and autolinks.
+* The **`math`** plugin (KaTeX) renders `$inline$` and `$$block$$` LaTeX with zero layout shift.
+* Fenced code blocks stay palette-dark in both light and dark modes (see [troubleshooting](troubleshooting.md) for the rationale).
 
-* `remark-gfm` brings tables, task lists, strikethrough, and autolinks.
-* `remark-math` + `rehype-katex` render `$inline$` and `$$block$$` LaTeX with zero layout shift.
-* `rehype-highlight` colors fenced code blocks; the palette is fixed dark in both light and dark modes (see [troubleshooting](troubleshooting.md) for the rationale).
-
-Mermaid fenced blocks are split out *before* the pipeline — they never pass through remark as code, they become `<MermaidViewer>` segments.
+Fenced ```mermaid blocks are tokenized by comark's **`mermaid`** plugin and mapped to `<MermaidViewer>`, which keeps live-theme derivation and the pan/zoom viewport. Relative links render through a custom `a` component that dispatches the `mdninja:open-file` event, resolving relative hrefs against the open document's directory.
 
 ## 4. Diagram Engine
 
@@ -83,7 +80,7 @@ sequenceDiagram
     UI->>API: GET /api/content?path=roadmaps/roadmap.md
     API->>FS: readFile (fallback: bundled canon snapshot)
     FS-->>UI: markdown
-    UI->>UI: unified pipeline renders
+    UI->>UI: comark parses & renders
     UI->>API: POST /api/content {path, content}
     API->>FS: writeFile (path-validated)
     Note over FS: git status shows the change

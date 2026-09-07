@@ -27,5 +27,13 @@
     "mcp"
   ],
   "author": "James Hill <jamesnavinhill18@gmail.com>",
-  "license": "MIT"
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jamesnavinhill/mdNinja.git",
+    "directory": "packages/cli"
+  }
 }

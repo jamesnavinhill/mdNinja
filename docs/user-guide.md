@@ -48,9 +48,9 @@ Settings → **Styling, Themes & Comfort**:
 * **Reading palettes** — Default, Tokyo Night, Nord Frost, GitHub Dimmed, Paper Sepia. Each works in both dark and light.
 * **Accent color** — full spectrum picker; diagrams, links, and UI chrome follow it live.
 * **Typography** — font family, size, line height, and document max-width sliders apply instantly.
-* **Icon engine** — switch the folder icons to Lucide or Phosphor and override the icon for individual canon sections.
+* **Sidebar & File Tree** — expand-on-hover toggle and hover open/close delays, persisted centrally.
 
-Dark/light is the rail toggle; palette and accent are the Settings job. Everything re-renders live.
+Dark/light is the rail toggle; palette, accent, and sidebar behavior are the Settings job. Everything re-renders live. Folder icons use the built-in Lucide pack by default.
 
 ## Connect a GitHub repo
 

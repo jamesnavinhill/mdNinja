@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { FileText, ChevronDown, ChevronRight } from "lucide-react";
+import { FileText, ChevronDown, ChevronRight, RefreshCw, Folder, GitBranch } from "lucide-react";
 import { FileItem, RepoScanResult } from "@/lib/types";
 import {
   IconPack,
@@ -10,12 +10,22 @@ import {
   loadIconPack,
   loadIconOverrides,
 } from "@/lib/icons";
+import { notifyFileSelected } from "@/lib/sidebar";
 
 interface FileTreeProps {
   scanData: RepoScanResult | null;
   activeFile: string | null;
   onSelectFile: (path: string) => void;
   targetToFocus: string | null;
+  onSync: () => void;
+}
+
+interface GitHubRepo {
+  name: string;
+  fullName: string;
+  active: boolean;
+  branch?: string;
+  iconUrl?: string;
 }
 
 // Map a folder's name to a semantic nav key (so folder icons follow the registry/overrides).
@@ -34,10 +44,33 @@ export const FileTree: React.FC<FileTreeProps> = ({
   activeFile,
   onSelectFile,
   targetToFocus,
+  onSync,
 }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>({});
   const defaultsAppliedRef = React.useRef(false);
+
+  // GitHub repos for selector
+  const [repos, setRepos] = useState<GitHubRepo[]>([]);
+  const [selectedRepo, setSelectedRepo] = useState<GitHubRepo | null>(null);
+
+  useEffect(() => {
+    const loadRepos = () => {
+      try {
+        const raw = localStorage.getItem("mdninja_repos");
+        const repoList: GitHubRepo[] = raw ? JSON.parse(raw) : [];
+        setRepos(repoList);
+        const active = repoList.find((r) => r.active) || repoList[0] || null;
+        setSelectedRepo(active);
+      } catch {
+        setRepos([]);
+        setSelectedRepo(null);
+      }
+    };
+    loadRepos();
+    window.addEventListener("mdninja:repos-changed", loadRepos);
+    return () => window.removeEventListener("mdninja:repos-changed", loadRepos);
+  }, []);
 
   // Default workspace layout (per design-edits):
   //   - mdninja living canon: EXPANDED (the goods, front and centre)
@@ -206,7 +239,37 @@ export const FileTree: React.FC<FileTreeProps> = ({
     if (!searchQuery) return !collapsedSections[sectionKey];
     return items.some(matchesSearch) ? true : !collapsedSections[sectionKey];
   };
+{/* GitHub Selector Header */}
+      <div className="github-selector-header">
+        <div className="github-selector-info">
+          {selectedRepo ? (
+            <>
+              <Folder size={13} color="var(--accent)" />
+              <span className="repo-name">{selectedRepo.name}</span>
+              <GitBranch size={11} color="var(--text-muted)" />
+              <span className="repo-branch">{selectedRepo.branch || "main"}</span>
+            </>
+          ) : (
+            <>
+              <Folder size={13} color="var(--text-muted)" />
+              <span className="repo-name" style={{ color: "var(--text-muted)" }}>
+                {scanData?.rootName || "mdninja"}
+              </span>
+            </>
+          )}
+        </div>
+        <button
+          type="button"
+          className="sync-btn"
+          onClick={onSync}
+          title="Sync files"
+        >
+          <RefreshCw size={13} />
+        </button>
+      </div>
 
+      {/* Search Input */}
+      
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
       <div className="sidebar-search">

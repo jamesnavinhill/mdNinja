@@ -234,6 +234,15 @@ html, body {
   position: relative;
 }
 
+/* Sidebar Wrapper - groups rail + panel for pointer-intent detection */
+.sidebar-wrapper {
+  display: flex;
+  height: 100%;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 120;
+}
+
 /* Sidebar & Icon Rail */
 .icon-rail {
   width: 46px;
@@ -245,7 +254,6 @@ html, body {
   align-items: center;
   padding: 0;
   flex-shrink: 0;
-  z-index: 120;
   box-sizing: border-box;
 }
 
@@ -319,6 +327,59 @@ html, body {
   color: var(--accent);
 }
 
+/* Projects Strip - GitHub repos */
+.rail-projects {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border-subtle);
+  width: 100%;
+}
+
+.rail-project-chip {
+  width: 26px;
+  height: 26px;
+  border-radius: var(--radius-sm);
+  background-color: var(--bg-tertiary);
+  border: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+  cursor: grab;
+  transition: all 0.15s ease;
+  overflow: hidden;
+}
+
+.rail-project-chip:active {
+  cursor: grabbing;
+}
+
+.rail-project-chip:hover {
+  background-color: var(--bg-hover);
+  border-color: var(--border-medium);
+}
+
+.rail-project-chip.active {
+  background-color: var(--accent-subtle);
+  border-color: var(--accent);
+  color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-subtle);
+}
+
+.rail-project-chip.add-project {
+  cursor: pointer;
+  border-style: dashed;
+}
+
+.rail-project-chip.add-project:hover {
+  background-color: var(--bg-hover);
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
 .sidebar-panel {
   width: 260px;
   height: 100%;
@@ -329,7 +390,6 @@ html, body {
   flex-shrink: 0;
   transition: width 0.15s ease;
   overflow: hidden;
-  z-index: 15;
 }
 
 .sidebar-panel.collapsed {
@@ -337,18 +397,62 @@ html, body {
   border-right: none;
 }
 
-.sidebar-header {
-  height: 38px;
+/* GitHub Selector Header */
+.github-selector-header {
+  height: 34px;
   padding: 0 10px;
   border-bottom: 1px solid var(--border-subtle);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  font-weight: 600;
-  font-size: 12px;
-  letter-spacing: 0.5px;
-  color: var(--text-primary);
   flex-shrink: 0;
+  background-color: var(--bg-secondary);
+}
+
+.github-selector-info {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11.5px;
+  color: var(--text-primary);
+  overflow: hidden;
+  flex: 1;
+}
+
+.repo-name {
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.repo-branch {
+  font-size: 10.5px;
+  color: var(--text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sync-btn {
+  width: 24px;
+  height: 24px;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+}
+
+.sync-btn:hover {
+  background-color: var(--bg-hover);
+  color: var(--text-primary);
+  border-color: var(--border-subtle);
 }
 
 .sidebar-search {
