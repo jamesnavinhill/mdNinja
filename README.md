@@ -7,11 +7,11 @@
 [![Tauri 2.0](https://img.shields.io/badge/Tauri-2.0-orange?style=flat-square&logo=tauri)](https://tauri.app/)
 [![MCP](https://img.shields.io/badge/MCP-Protocol-purple?style=flat-square)](https://modelcontextprotocol.io)
 [![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)](LICENSE)
-[![Live Demo](https://img.shields.io/badge/Live_Demo-mdninja.navinhill.com-indigo?style=flat-square)](https://mdninja.navinhill.com)
+[![Live Demo](https://img.shields.io/badge/Live_Demo-md--ninja.vercel.app-indigo?style=flat-square)](https://md-ninja.vercel.app)
 
 **mdNinja** connects your engineering repository's Markdown documents—architecture blueprints, living roadmaps, ADRs, interactive diagrams, and AI agent memory—into an uncluttered, high-performance visual workbench and standardized MCP interface with **zero database silos**.
 
-Explore the public live demo: **[mdninja.navinhill.com](https://mdninja.navinhill.com)**
+Explore the public live demo: **[md-ninja.vercel.app](https://md-ninja.vercel.app)** (Vercel Authentication may protect access; production is Ready via the Vercel CLI).
 
 ---
 

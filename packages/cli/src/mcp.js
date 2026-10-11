@@ -91,6 +91,69 @@ function safeResolve(root, targetRel) {
   return resolved;
 }
 
+/**
+ * AI-backed tools (suggest_adr, summarize_doc) call the Yrka Agency gateway —
+ * OpenAI-compatible, free models only. The key comes from YRKA_GATEWAY_API_KEY
+ * (or AGENCY_TOOLS_TOKEN fallback); tools fail with a clear message when unset.
+ */
+async function gatewayAiTool(name, args, canonDirAbs, projectRootAbs) {
+  const apiKey = process.env.YRKA_GATEWAY_API_KEY || process.env.AGENCY_TOOLS_TOKEN;
+  if (!apiKey) {
+    return "AI tools are not configured: set YRKA_GATEWAY_API_KEY in your environment.";
+  }
+  const baseUrl = process.env.YRKA_GATEWAY_BASE_URL || "https://gateway.yrka.io/v1";
+  const model = process.env.YRKA_MODEL || "nv-z-ai-glm-5-3-flash";
+
+  let userContent;
+  if (name === "summarize_doc") {
+    const resolved = safeResolve(canonDirAbs, String(args.path || ""));
+    if (!resolved) return `Invalid path: ${args.path}`;
+    const fs = require("fs");
+    if (!fs.existsSync(resolved)) return `Document not found: ${args.path}`;
+    const doc = fs.readFileSync(resolved, "utf8");
+    const maxWords = Number(args.maxWords) > 0 ? Number(args.maxWords) : 150;
+    userContent = `Summarize this document in about ${maxWords} words (markdown, no preamble):
+
+${doc.slice(0, 20000)}`;
+  } else {
+    const adrDir = require("path").join(canonDirAbs, "adr");
+    const fs = require("fs");
+    let styleSample = "";
+    try {
+      const existing = fs.readdirSync(adrDir).filter((f) => f.endsWith(".md")).slice(0, 1);
+      if (existing.length) styleSample = fs.readFileSync(require("path").join(adrDir, existing[0]), "utf8").slice(0, 3000);
+    } catch { /* no adr dir yet */ }
+    userContent = `Draft an Architecture Decision Record titled "${args.title}".
+Context and options:
+${args.context}
+${styleSample ? `Match the structure of this existing ADR:
+${styleSample}` : "Use a standard ADR structure (Status/Context/Decision/Consequences)."}`;
+  }
+
+  const res = await fetch(`${baseUrl}/chat/completions`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+      "x-agency-surface": "mdninja",
+    },
+    body: JSON.stringify({
+      model,
+      messages: [
+        { role: "system", content: "You are the AI assistant embedded in the mdNinja canon MCP server. Be precise and terse." },
+        { role: "user", content: userContent },
+      ],
+      max_tokens: 1200,
+    }),
+  });
+  if (!res.ok) {
+    return `Gateway request failed (${res.status}).`;
+  }
+  const data = await res.json();
+  const content = data && data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content;
+  return typeof content === "string" && content.trim() ? content : "Gateway returned no content.";
+}
+
 async function startMcpServer() {
   const projectRoot = findProjectRoot();
   const { canonDir, canonRel } = getCanonConfig(projectRoot);
@@ -226,6 +289,32 @@ async function startMcpServer() {
               },
             },
             required: ["taskQuery", "completed"],
+          },
+        },
+        {
+          name: "suggest_adr",
+          description:
+            "Draft an Architecture Decision Record from a described decision, grounded in the repo's existing ADR style. Uses the Yrka Agency gateway (free models). Returns markdown ready for create_adr.",
+          inputSchema: {
+            type: "object",
+            properties: {
+              title: { type: "string", description: "Short decision title." },
+              context: { type: "string", description: "The problem, forces, and options considered." },
+            },
+            required: ["title", "context"],
+          },
+        },
+        {
+          name: "summarize_doc",
+          description:
+            "Summarize a canon document via the Yrka Agency gateway (free models). Returns a short markdown summary.",
+          inputSchema: {
+            type: "object",
+            properties: {
+              path: { type: "string", description: "Canon-relative path of the document." },
+              maxWords: { type: "number", description: "Approximate summary length (default 150)." },
+            },
+            required: ["path"],
           },
         },
       ],
@@ -425,6 +514,11 @@ ${
             },
           ],
         };
+      }
+
+      if (name === "suggest_adr" || name === "summarize_doc") {
+        const text = await gatewayAiTool(name, args, canonDir, projectRoot);
+        return { content: [{ type: "text", text }] };
       }
 
       throw new McpError(ErrorCode.MethodNotFound, `Unknown tool: ${name}`);
